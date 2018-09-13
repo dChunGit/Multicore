@@ -3,7 +3,7 @@ package q6.AtomicInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PIncrement implements Runnable{
-    private static volatile AtomicInteger counter = new AtomicInteger();
+    private static AtomicInteger counter = new AtomicInteger();
     private static int perThread = 0;
 
     public static int parallelIncrement(int c, int numThreads) {

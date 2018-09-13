@@ -1,7 +1,7 @@
 package q6.Synchronized;
 
 public class PIncrement implements Runnable{
-    private static volatile int counter;
+    private static int counter;
     private static int perThread = 0;
 
     public static int parallelIncrement(int c, int numThreads) {

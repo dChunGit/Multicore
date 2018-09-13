@@ -3,7 +3,7 @@ package q6.ReentrantLock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class PIncrement implements Runnable{
-    private static volatile int counter;
+    private static int counter;
     private static int perThread = 0;
 
     private static ReentrantLock lock = new ReentrantLock();
