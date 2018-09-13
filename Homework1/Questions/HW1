@@ -1,0 +1,149 @@
+1.
+    a) Initial state is off
+        Agree to always flip switch when you enter the room.
+        When you see P alternating states, you know all P people have entered the room at least once
+    b) Don't know initial state is off
+        Agree to always flip switch when you enter the room.
+        When you first enter the room, note the orientatfion.
+        When you see P alternating states, you know all P people have entered the room at least once
+
+2.
+    a)
+        [dchun@dChunAntergos Multicore]$ spin -p -t peterson.pml
+        using statement merging
+          1:    proc  1 (user:1) peterson.pml:8 (state 1)   [assert(((_pid==0)||(_pid==1)))]
+          2:    proc  0 (user:1) peterson.pml:8 (state 1)   [assert(((_pid==0)||(_pid==1)))]
+          3:    proc  1 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+          4:    proc  1 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+          5:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+          6:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+          7:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+          8:    proc  1 (user:1) peterson.pml:16 (state 7)  [ncrit = (ncrit-1)]
+          9:    proc  0 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+         10:    proc  1 (user:1) peterson.pml:18 (state 8)  [flag[_pid] = 0]
+         11:    proc  1 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+         12:    proc  1 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+         13:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         14:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+         15:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+         16:    proc  0 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+         17:    proc  1 (user:1) peterson.pml:16 (state 7)  [ncrit = (ncrit-1)]
+         18:    proc  1 (user:1) peterson.pml:18 (state 8)  [flag[_pid] = 0]
+         19:    proc  1 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+         20:    proc  1 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+         21:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         22:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+         23:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+         24:    proc  1 (user:1) peterson.pml:16 (state 7)  [ncrit = (ncrit-1)]
+         25:    proc  1 (user:1) peterson.pml:18 (state 8)  [flag[_pid] = 0]
+         26:    proc  0 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         27:    proc  1 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+         28:    proc  1 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+         29:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         30:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+         31:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+         32:    proc  1 (user:1) peterson.pml:16 (state 7)  [ncrit = (ncrit-1)]
+         33:    proc  0 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+         34:    proc  1 (user:1) peterson.pml:18 (state 8)  [flag[_pid] = 0]
+         35:    proc  1 (user:1) peterson.pml:10 (state 2)  [flag[_pid] = 1]
+         36:    proc  1 (user:1) peterson.pml:11 (state 3)  [turn = !(_pid)]
+         37:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         38:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+        spin: peterson.pml:15, Error: assertion violated
+        spin: text of failed assertion: assert((ncrit==1))
+         39:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+        spin: trail ends after 39 steps
+        #processes: 2
+                turn = 0
+                flag[0] = 1
+                flag[1] = 1
+                ncrit = 2
+         39:    proc  1 (user:1) peterson.pml:16 (state 7)
+         39:    proc  0 (user:1) peterson.pml:15 (state 6)
+        2 processes created
+
+    b)
+        [dchun@dChunAntergos Multicore]$ spin -p -t peterson.pml
+        using statement merging
+          1:    proc  1 (user:1) peterson.pml:8 (state 1)   [assert(((_pid==0)||(_pid==1)))]
+          2:    proc  0 (user:1) peterson.pml:8 (state 1)   [assert(((_pid==0)||(_pid==1)))]
+          3:    proc  1 (user:1) peterson.pml:10 (state 2)  [turn = _pid]
+          4:    proc  1 (user:1) peterson.pml:11 (state 3)  [flag[_pid] = 1]
+          5:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+          6:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+          7:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+          8:    proc  1 (user:1) peterson.pml:16 (state 7)  [ncrit = (ncrit-1)]
+          9:    proc  1 (user:1) peterson.pml:18 (state 8)  [flag[_pid] = 0]
+         10:    proc  0 (user:1) peterson.pml:10 (state 2)  [turn = _pid]
+         11:    proc  1 (user:1) peterson.pml:10 (state 2)  [turn = _pid]
+         12:    proc  1 (user:1) peterson.pml:11 (state 3)  [flag[_pid] = 1]
+         13:    proc  1 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         14:    proc  1 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+         15:    proc  1 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+         16:    proc  0 (user:1) peterson.pml:11 (state 3)  [flag[_pid] = 1]
+         17:    proc  0 (user:1) peterson.pml:12 (state 4)  [(((flag[(1-_pid)]==0)||(turn==(1-_pid))))]
+         18:    proc  0 (user:1) peterson.pml:14 (state 5)  [ncrit = (ncrit+1)]
+        spin: peterson.pml:15, Error: assertion violated
+        spin: text of failed assertion: assert((ncrit==1))
+         19:    proc  0 (user:1) peterson.pml:15 (state 6)  [assert((ncrit==1))]
+        spin: trail ends after 19 steps
+        #processes: 2
+                turn = 1
+                flag[0] = 1
+                flag[1] = 1
+                ncrit = 2
+         19:    proc  1 (user:1) peterson.pml:16 (state 7)
+         19:    proc  0 (user:1) peterson.pml:16 (state 7)
+        2 processes created
+
+
+3. Show that the Filter lock allows some threads to overtake others an arbitrary number of times.
+    Assume thread in a gate is sleeping or otherwise halted.
+    NTS: Thread that has entered CS can reenter CS
+    Thread will be stuck if: is victim, or same/higher than current gate check
+    Upon asking for CS, filter algo will proceed as normal until gate g where Ts is located. Eventually a spot will open up in gate g+1 (if not bc current thread has exited CS). At this point, the condition check is thus:
+        There is another process
+        The other process (sleeping process) is at the same level or ahead
+        I am the last to update last[k]
+    Overtaking can occur if another thread overwrites last[k] since the sleeping process will always be at the same level
+    If a third thread overwrites last at gate g, thread will proceed to gate g+1
+
+4. The l-exclusion problem is a variant of the starvation-free mutual exclusion problem. We make two changes: as many as l threads may be in the critical section at the same time, and fewer than l threads
+might fail (by halting) in the critical section. An implementation must satisfy the following conditions:
+    public void requestCS(int i) {
+        for (int k = 1; k < N; k++) {
+            gate[i] = k;
+            queue[k].add(i);
+
+            //no need for loop here
+            //if there are N-1 > l processes and l processes are right in front of me in queue[k+1] and I'm the back of the queue
+        }
+    }
+
+    public void releaseCS(int i) {
+        gate[i] = 0;
+        queue[N-1].remove(i);
+    }
+
+Conditions:
+    If there are l other processes besides me
+    If those l other processes are ahead of me
+    If the wait queue is full
+
+5.
+    public static in parallelFreq(int x, int[] A, int numThreads) {
+        int finalCount = 0;
+        int arrayNum = (A.length + numThreads - 1)/ numThreads;
+        int arraySize = A.length/arrayNum;
+        if (arraySize * arrayNum < A.length) arraySize++;
+        int front = 0; end = arraySize;
+        for (int a = 0; a < arrayNum; a++) {
+            SortCallable sorter = new SortCallable(Arrays.copyOfRange(A, front, end))
+            front = end;
+            end += ArraySize;
+            Future<Integer> future = executorService.submit(sorter);
+            finalCount += future.get().intValue();
+        }
+    }
+
+    
