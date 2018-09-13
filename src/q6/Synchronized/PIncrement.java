@@ -29,6 +29,6 @@ public class PIncrement implements Runnable{
     }
 
     private static synchronized void increment() {
-        counter = counter + 1;
+        counter++;
     }
 }
