@@ -25,19 +25,19 @@ public class SimpleTest {
 
 	@Test
 	public void TestArraySplit() {
-		int[] A = {2,3,4,5,6,7};
+		int[] A = {2,3,4,7,6,7};
 		int frequency = Frequency.parallelFreq(7, A, 5);
-		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == 1);
+		assertTrue("Result is " + frequency + ", expected frequency of 7 is 2.", frequency == 2);
         frequency = Frequency.parallelFreq(7, A, 7);
-        assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == 1);
+        assertTrue("Result is " + frequency + ", expected frequency of 7 is 2.", frequency == 2);
 	}
 
 	@Test
 	public void TestInvalids() {
 		int[] A = {25};
 		int frequency = Frequency.parallelFreq(3, A, -1);
-		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == -1);
+		assertTrue("Result is " + frequency + ", expected frequency of 3 is -1.", frequency == -1);
 		frequency = Frequency.parallelFreq(3, null, 4);
-		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == -1);
+		assertTrue("Result is " + frequency + ", expected frequency of 3 is -1.", frequency == -1);
 	}
 }
