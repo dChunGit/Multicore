@@ -25,11 +25,13 @@ public class SimpleTest {
 
 	@Test
 	public void TestArraySplit() {
-		int[] A = {2,3,4,7,6,7};
+		int[] A = {7,3,4,7,6,7};
 		int frequency = Frequency.parallelFreq(7, A, 5);
-		assertTrue("Result is " + frequency + ", expected frequency of 7 is 2.", frequency == 2);
+		assertTrue("Result is " + frequency + ", expected frequency of 7 is 3.", frequency == 3);
         frequency = Frequency.parallelFreq(7, A, 7);
-        assertTrue("Result is " + frequency + ", expected frequency of 7 is 2.", frequency == 2);
+        assertTrue("Result is " + frequency + ", expected frequency of 7 is 3.", frequency == 3);
+        frequency = Frequency.parallelFreq(7, A, 4);
+		assertTrue("Result is " + frequency + ", expected frequency of 7 is 3.", frequency == 3);
 	}
 
 	@Test
