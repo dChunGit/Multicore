@@ -22,4 +22,22 @@ public class SimpleTest {
     	frequency = Frequency.parallelFreq(32, A, 8);
     	assertTrue("Result is " + frequency + ", expected frequency of 32 is 3.", frequency == 3);
 	}
+
+	@Test
+	public void TestArraySplit() {
+		int[] A = {2,3,4,5,6,7};
+		int frequency = Frequency.parallelFreq(7, A, 5);
+		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == 1);
+        frequency = Frequency.parallelFreq(7, A, 7);
+        assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == 1);
+	}
+
+	@Test
+	public void TestInvalids() {
+		int[] A = {25};
+		int frequency = Frequency.parallelFreq(3, A, -1);
+		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == -1);
+		frequency = Frequency.parallelFreq(3, null, 4);
+		assertTrue("Result is " + frequency + ", expected frequency of 3 is 19.", frequency == -1);
+	}
 }
