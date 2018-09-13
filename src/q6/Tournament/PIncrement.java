@@ -25,7 +25,7 @@ public class PIncrement implements Runnable{
 
     private int pid;
 
-    public PIncrement(int pid) {
+    private PIncrement(int pid) {
         this.pid = pid;
     }
 
