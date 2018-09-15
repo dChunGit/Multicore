@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class SimpleTest {
-    int n = 7;
+    int n = 8;
 
 	@Test
 	public void TestTournament() {
