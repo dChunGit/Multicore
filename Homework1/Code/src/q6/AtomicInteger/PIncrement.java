@@ -43,7 +43,7 @@ public class PIncrement implements Runnable{
         }
     }
 
-    private static synchronized void increment() {
+    private static void increment() {
         counter.compareAndSet(counter.get(), counter.get() + 1);
     }
 }
