@@ -10,7 +10,7 @@ public class TournamentLock implements Lock {
         int roundUp = (int) Math.pow(2, (int) Math.ceil(Math.log(numThreads)/Math.log(2)));
         this.numLevels = (int) Math.ceil(Math.log(roundUp)/Math.log(2));
         // initalize array of locks
-        int lockNums = (int) Math.pow(2, numLevels);
+        int lockNums = (int) Math.pow(2, numLevels) - 1;
 
         gates = new PetersonAlgorithm[lockNums];
         this.lockPath = new int[numThreads][gates.length][2];
@@ -23,7 +23,7 @@ public class TournamentLock implements Lock {
     @Override
     public void lock(int pid) {
         int currentPIDGate = pid;
-        int currentGate = (pid + gates.length)/2;
+        int currentGate = (pid + gates.length - 1)/2;
 
         for(int l = 0; l < numLevels; l++) {
             //based on index of thread, find its gate and try peterson's on it
@@ -34,7 +34,7 @@ public class TournamentLock implements Lock {
             lockPath[pid][l][1] = currentPIDGate%2;
 
             currentPIDGate = currentGate;
-            currentGate /= 2;
+            currentGate = (currentGate - 1)/2;
         }
     }
 
