@@ -19,7 +19,7 @@ public class TournamentLock implements Lock {
 
     @Override
     public void lock(int pid) {
-        int currentGate = (pid + numLevels - 1)/2;
+        int currentGate = (pid + gates.length - 1)/2;
         for(int l = 0; l < numLevels; l++) {
             int petersonId = 0; // TODO: find how to assign 1 or 0
             //based on index of thread, find its gate and try peterson's on it
