@@ -24,20 +24,24 @@ public class TournamentLock implements Lock {
 
     @Override
     public void lock(int pid) {
-        int currentPIDGate = (pid + gates.length);
+        int currentPIDGate = pid + gates.length;
+        int currentGate = (pid + gates.length)/2;
 
         for(int l = 0; l < numLevels; l++) {
             //based on index of thread, find its gate and try peterson's on it
+            gates[currentGate].requestCS(currentPIDGate%2);
             //mark gate as locked so unlock can backtrack
+            lockPath[pid][l][0] = currentGate;
             lockPath[pid][l][1] = currentPIDGate%2;
-            lockPath[pid][l][0] = currentPIDGate/2;
-            gates[lockPath[pid][l][0]].requestCS(lockPath[pid][l][1]);
-            currentPIDGate /= 2;
+
+            currentPIDGate = currentGate;
+            currentGate /= 2;
         }
     }
 
     @Override
     public void unlock(int pid) {
+        //unlock backwards through tree
         for(int l = numLevels - 1; l >= 0; l--) {
             //release its gates based on tracked path
             gates[lockPath[pid][l][0]].releaseCS(lockPath[pid][l][1]);
