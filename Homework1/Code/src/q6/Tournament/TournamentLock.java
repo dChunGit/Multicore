@@ -20,13 +20,14 @@ public class TournamentLock implements Lock {
     @Override
     public void lock(int pid) {
         int currentGate = (pid + gates.length - 1)/2;
+        int petersonId = pid + gates.length;
         for(int l = 0; l < numLevels; l++) {
-            int petersonId = 0; // TODO: find how to assign 1 or 0
             //based on index of thread, find its gate and try peterson's on it
-            gates[currentGate].requestCS(petersonId);
+            gates[currentGate].requestCS(petersonId%2);
             //mark gate as locked so unlock can backtrack
             lockPath[pid][l][0] = currentGate;
-            lockPath[pid][l][1] = petersonId;
+            lockPath[pid][l][1] = petersonId%2;
+            petersonId /= 2;
             currentGate = (currentGate-1)/2;
         }
     }
