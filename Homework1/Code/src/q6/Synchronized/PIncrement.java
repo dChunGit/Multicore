@@ -7,9 +7,15 @@ public class PIncrement implements Runnable{
     public static int parallelIncrement(int c, int numThreads) {
         counter = c;
         perThread = 1200000 / numThreads;
+        int remainder = 1200000 % numThreads;
 
         for(int a = 0; a < numThreads; a++) {
-            Thread thread = new Thread(new PIncrement());
+            boolean addOne = false;
+            if(remainder > 0) {
+                addOne = true;
+                remainder--;
+            }
+            Thread thread = new Thread(new PIncrement(addOne));
             thread.start();
             try {
                 thread.join();
@@ -21,9 +27,16 @@ public class PIncrement implements Runnable{
         return counter;
     }
 
+    private int myCount;
+
+    private PIncrement(boolean addOne) {
+        this.myCount = perThread;
+        if(addOne) this.myCount++;
+    }
+
     @Override
     public void run() {
-        for(int a = 0; a < perThread; a++) {
+        for(int a = 0; a < myCount; a++) {
             increment();
         }
     }

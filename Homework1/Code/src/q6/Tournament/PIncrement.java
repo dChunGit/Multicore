@@ -9,9 +9,15 @@ public class PIncrement implements Runnable{
         tournamentLock = new TournamentLock(numThreads);
         counter = c;
         perThread = 1200000 / numThreads;
+        int remainder = 1200000 % numThreads;
 
         for(int a = 0; a < numThreads; a++) {
-            Thread thread = new Thread(new PIncrement(a));
+            boolean addOne = false;
+            if(remainder > 0) {
+                addOne = true;
+                remainder--;
+            }
+            Thread thread = new Thread(new PIncrement(a, addOne));
             thread.start();
             try {
                 thread.join();
@@ -24,14 +30,17 @@ public class PIncrement implements Runnable{
     }
 
     private int pid;
+    private int myCount;
 
-    private PIncrement(int pid) {
+    private PIncrement(int pid, boolean addOne) {
         this.pid = pid;
+        this.myCount = perThread;
+        if(addOne) this.myCount++;
     }
 
     @Override
     public void run() {
-        for(int a = 0; a < perThread; a++) {
+        for(int a = 0; a < myCount; a++) {
             increment(pid);
         }
     }
