@@ -10,10 +10,13 @@ public class TournamentLock implements Lock {
         // your implementation goes here
         int roundUp = (int) Math.pow(2, (int) Math.ceil(Math.log(numThreads)/Math.log(2)));
         this.numLevels = (int) Math.ceil(Math.log(roundUp)/Math.log(2));
-        // use this to track which gates thread has passed through
-        this.lockPath = new int[numThreads][numLevels][2];
         // initalize array of locks
-        gates = new PetersonAlgorithm[(int) Math.pow(2, numLevels) - 1];
+        int level = (int) Math.ceil(Math.log(roundUp)/Math.log(2));
+        int lockNums = (int) Math.pow(2, level)-1;
+
+        gates = new PetersonAlgorithm[lockNums + 1];
+        this.lockPath = new int[numThreads][gates.length][2];
+
         for(int a  = 0; a < gates.length; a++) {
             gates[a] = new PetersonAlgorithm();
         }
@@ -21,22 +24,21 @@ public class TournamentLock implements Lock {
 
     @Override
     public void lock(int pid) {
-        int currentGate = (pid + gates.length - 1)/2;
-        int petersonId = pid + gates.length;
+        int currentPIDGate = (pid + gates.length);
+
         for(int l = 0; l < numLevels; l++) {
             //based on index of thread, find its gate and try peterson's on it
-            gates[currentGate].requestCS(petersonId%2);
             //mark gate as locked so unlock can backtrack
-            lockPath[pid][l][0] = currentGate;
-            lockPath[pid][l][1] = petersonId%2;
-            petersonId = currentGate;
-            currentGate = (currentGate-1)/2;
+            lockPath[pid][l][1] = currentPIDGate%2;
+            lockPath[pid][l][0] = currentPIDGate/2;
+            gates[lockPath[pid][l][0]].requestCS(lockPath[pid][l][1]);
+            currentPIDGate /= 2;
         }
     }
 
     @Override
     public void unlock(int pid) {
-        for(int l = 0; l < numLevels; l++) {
+        for(int l = numLevels - 1; l >= 0; l--) {
             //release its gates based on tracked path
             gates[lockPath[pid][l][0]].releaseCS(lockPath[pid][l][1]);
         }

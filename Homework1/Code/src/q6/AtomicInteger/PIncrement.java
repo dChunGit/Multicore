@@ -1,18 +1,16 @@
 package q6.AtomicInteger;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PIncrement implements Runnable{
     private static AtomicInteger counter = new AtomicInteger();
     private static int perThread = 0;
-    private static ArrayList<Thread> threads;
 
     public static int parallelIncrement(int c, int numThreads) {
         counter.set(c);
         perThread = 1200000 / numThreads;
-        threads = new ArrayList<Thread>();
         int remainder = 1200000 % numThreads;
+        Thread[] threads = new Thread[numThreads];
 
         for(int a = 0; a < numThreads; a++) {
             boolean addOne = false;
@@ -22,16 +20,17 @@ public class PIncrement implements Runnable{
             }
             Thread thread = new Thread(new PIncrement(addOne));
             thread.start();
-            threads.add(thread);
+            threads[a] = thread;
         }
 
-        for (Thread t: threads) {
+        for(int a = 0; a < numThreads; a++) {
             try {
-                t.join();
+                threads[a].join();
             } catch (Exception e) {
-                //this should not occur
+                System.out.println("ERROR");
             }
         }
+
         return counter.get();
     }
 
