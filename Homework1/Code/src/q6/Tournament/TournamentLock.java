@@ -7,7 +7,7 @@ public class TournamentLock implements Lock {
 
     public TournamentLock(int numThreads) {
         // your implementation goes here.
-        this.numLevels = (int) Math.ceil(Math.log(numThreads));
+        this.numLevels = (int) Math.ceil(Math.log(numThreads)/Math.log(2));
         // use this to track which gates thread has passed through
         this.lockPath = new int[numThreads][numLevels][2];
         // initalize array of locks
