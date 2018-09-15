@@ -8,6 +8,7 @@ public class PIncrement implements Runnable{
         counter = c;
         perThread = 1200000 / numThreads;
         int remainder = 1200000 % numThreads;
+        Thread[] threads = new Thread[numThreads];
 
         for(int a = 0; a < numThreads; a++) {
             boolean addOne = false;
@@ -17,10 +18,14 @@ public class PIncrement implements Runnable{
             }
             Thread thread = new Thread(new PIncrement(addOne));
             thread.start();
+            threads[a] = thread;
+        }
+
+        for(int a = 0; a < numThreads; a++) {
             try {
-                thread.join();
+                threads[a].join();
             } catch (Exception e) {
-                //this should not occur
+                System.out.println("ERROR");
             }
         }
 
