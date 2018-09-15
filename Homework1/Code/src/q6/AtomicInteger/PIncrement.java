@@ -44,6 +44,7 @@ public class PIncrement implements Runnable{
     }
 
     private static void increment() {
-        counter.compareAndSet(counter.get(), counter.get() + 1);
+        int value = counter.get();
+        while(counter.compareAndSet(value, value + 1)) {}
     }
 }
