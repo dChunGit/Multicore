@@ -25,6 +25,12 @@ public class PIncrement implements Runnable {
             threads[a] = thread;
         }
 
+//        try {
+//            TimeUnit.MICROSECONDS.sleep(100);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
         for(int a = 0; a < numThreads; a++) {
             try {
                 threads[a].join();
@@ -48,17 +54,11 @@ public class PIncrement implements Runnable {
     @Override
     public void run() {
         for(int a = 0; a < this.myCount; a++) {
-            requestCS(this.id);
-            increment();
-            releaseCS();
+            increment(this.id);
         }
     }
 
-    private static void increment() {
-        counter++;
-    }
-
-    private static void requestCS(int id) {
+    private static void increment(int id) {
         while (true) {
             while (turn != -1) {}
             turn = id;
@@ -69,12 +69,13 @@ public class PIncrement implements Runnable {
                 e.printStackTrace();
             }
             if (turn == id) {
+                counter++;
+                System.out.println("Thread " + id + " incremented counter to " + counter);
+                turn = -1;
+                System.out.println("Turn is " + turn);
                 return;
             }
         }
     }
 
-    private static void releaseCS() {
-        turn = -1;
-    }
 }
