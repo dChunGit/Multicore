@@ -1,17 +1,17 @@
 package q2.c;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PIncrement implements Runnable {
     private static int counter = 0;
     private static int perThread = 0;
-    private static AtomicInteger tailSlot = new AtomicInteger(0);
+    private static AtomicInteger tailSlot;
     private static boolean[] Available;
     private static int threads;
 
     public static int parallelIncrement(int c, int numThreads) {
         counter = c;
+        tailSlot = new AtomicInteger(0);
         perThread = 100 / numThreads;
         threads = numThreads;
         int remainder = 100 % numThreads;
@@ -30,7 +30,6 @@ public class PIncrement implements Runnable {
                 remainder--;
             }
             Thread thread = new Thread(new PIncrement(addOne));
-            System.out.println("Thread " + a);
             thread.start();
             threads[a] = thread;
         }

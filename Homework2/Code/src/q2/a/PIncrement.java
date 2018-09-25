@@ -3,14 +3,14 @@ package q2.a;
 import java.util.concurrent.TimeUnit;
 
 public class PIncrement implements Runnable {
-    private static int turn = -1;
+    private static volatile int turn = -1;
     private static int perThread = 0;
     private static int counter;
 
     public static int parallelIncrement(int c, int numThreads) {
         counter = c;
-        perThread = 10 / numThreads;
-        int remainder = 10 % numThreads;
+        perThread = 100 / numThreads;
+        int remainder = 100 % numThreads;
         Thread[] threads = new Thread[numThreads];
 
         for(int a = 0; a < numThreads; a++) {
@@ -20,16 +20,9 @@ public class PIncrement implements Runnable {
                 remainder--;
             }
             Thread thread = new Thread(new PIncrement(addOne, a));
-            System.out.println("Thread " + a);
             thread.start();
             threads[a] = thread;
         }
-
-//        try {
-//            TimeUnit.MICROSECONDS.sleep(100);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
         for(int a = 0; a < numThreads; a++) {
             try {
@@ -46,9 +39,9 @@ public class PIncrement implements Runnable {
     private int id;
 
     private PIncrement(boolean addOne, int id) {
+        this.id = id;
         this.myCount = perThread;
         if(addOne) this.myCount++;
-        this.id = id;
     }
 
     @Override
@@ -62,7 +55,6 @@ public class PIncrement implements Runnable {
         while (true) {
             while (turn != -1) {}
             turn = id;
-            System.out.println("Thread " + id + " trying to get CS");
             try {
                 TimeUnit.MICROSECONDS.sleep(10);
             } catch (InterruptedException e) {
@@ -70,9 +62,7 @@ public class PIncrement implements Runnable {
             }
             if (turn == id) {
                 counter++;
-                System.out.println("Thread " + id + " incremented counter to " + counter);
                 turn = -1;
-                System.out.println("Turn is " + turn);
                 return;
             }
         }

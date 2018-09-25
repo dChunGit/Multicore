@@ -2,7 +2,7 @@ package q2.b;
 
 public class PIncrement implements Runnable {
 
-    private static int counter = 0;
+    private static volatile int counter = 0;
     private static int perThread = 0;
     private static int X = -1;
     private static int Y = -1;
@@ -25,7 +25,6 @@ public class PIncrement implements Runnable {
                 remainder--;
             }
             Thread thread = new Thread(new PIncrement(addOne, a));
-            System.out.println("Thread " + a);
             thread.start();
             threads[a] = thread;
         }

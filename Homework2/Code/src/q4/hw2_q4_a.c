@@ -9,6 +9,7 @@ void MatrixMult(char file1[],char file2[],int T)
     double** m1;
     double** m2;
     
+    // Open files and read into 2d arrays
     FILE* inFile = fopen(file1, "r");
     if(inFile != NULL) {
         fscanf(inFile, "%d", &file1_row);
@@ -54,14 +55,15 @@ void MatrixMult(char file1[],char file2[],int T)
     }
     fclose(inFile);
 
-
+    // create output array
     double** output = new double*[file1_row];
     for(int o = 0; o < file1_row; o++) {
         output[o] = new double[file2_col];
     }
 
     #pragma omp parallel num_threads(T)
-    {
+    { 
+        // Split matrix into T threads, each taking a block of matrix rows to compute
         int my_num = omp_get_thread_num();
         int number_rows = file1_row/omp_get_num_threads();
         int end = number_rows * my_num;
@@ -76,27 +78,12 @@ void MatrixMult(char file1[],char file2[],int T)
                 }
             }
         }
-
-        printf("Mine: %i, Number starting: %i, Number to do: %i\n", my_num, end, number_rows);
     }
-
-    for(int a = 0; a < file1_row; a++) {
-        for(int b = 0; b < file1_col; b++) {
-            printf("%f ", m1[a][b]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    for(int a = 0; a < file2_row; a++) {
-        for(int b = 0; b < file2_col; b++) {
-            printf("%f ", m2[a][b]);
-        }
-        printf("\n");
-    }
-    printf("\n");
+    
+    printf("%i %i\n", file1_row, file2_col);
     for(int a = 0; a < file1_row; a++) {
         for(int b = 0; b < file2_col; b++) {
-            printf("%f ", output[a][b]);
+            printf("%lf ", output[a][b]);
         }
         printf("\n");
     }
