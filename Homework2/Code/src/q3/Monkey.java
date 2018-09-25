@@ -25,8 +25,8 @@ public class Monkey {
             while (numMonkeys != 0) {
                 ropeNotEmpty.await();
             }
+            crossing = -1;
             numMonkeys++;
-            Kong = false;
         }
         else {
             while ((crossing != direction && numMonkeys != 0) || (crossing == direction && numMonkeys == 3) || Kong) {
@@ -42,7 +42,12 @@ public class Monkey {
         ropeLock.lock();
         numMonkeys--;
         if (Kong) {
-            if (numMonkeys == 0) {
+            if (crossing == -1) {
+                Kong = false;
+                crossing = 0;
+                ropeBusy.signal();
+            }
+            else if (numMonkeys == 0) {
                 ropeNotEmpty.signal();
             }
         }
