@@ -5,6 +5,7 @@ public class TournamentLock implements Lock {
     private int[][][] lockPath;
     private PetersonAlgorithm[] gates;
 
+
     public TournamentLock(int numThreads) {
         // your implementation goes here
         int roundUp = (int) Math.pow(2, (int) Math.ceil(Math.log(numThreads)/Math.log(2)));
