@@ -2,32 +2,26 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fstream>
 
-using namespace std;
-int omp_get_thread_num();
 void MatrixMult(char file1[],char file2[],int T)
 {
     int file1_row = 0, file1_col = 0, file2_row = 0, file2_col = 0;
     double** m1;
     double** m2;
-    ifstream inFile;
-    inFile.open(file1);
-
-    if(inFile.is_open()) {
-        inFile >> file1_row;
-        inFile >> file1_col;
-        printf("%i, %i\n", file1_row, file1_col);
+    
+    FILE* inFile = fopen(file1, "r");
+    if(inFile != NULL) {
+        fscanf(inFile, "%d", &file1_row);
+        fscanf(inFile, "%d", &file1_col);
 
         m1 = new double*[file1_row];
         for(int a = 0; a < file1_row; a++) {
             m1[a] = new double[file1_col];
         }
-        int row = 0, col = 0;
         double x = 0;
-        while(inFile >> x) {
-            printf("%f\n", x);
-            printf("%i, %i\n", row, col);
+        int row = 0, col = 0;
+
+        while(fscanf(inFile, "%lf", &x) != EOF) {
             m1[row][col] = x;
             col++;
             if(col == file1_col) {
@@ -36,23 +30,20 @@ void MatrixMult(char file1[],char file2[],int T)
             }
         }
     }
-    inFile.close();
-    inFile.open(file2);
-
-    if(inFile.is_open()) {
-        inFile >> file2_row;
-        inFile >> file2_col;
-        printf("%i, %i\n", file2_row, file2_col);
+    fclose(inFile);
+    inFile = fopen(file2, "r");
+    if(inFile != NULL) {
+        fscanf(inFile, "%d", &file2_row);
+        fscanf(inFile, "%d", &file2_col);
 
         m2 = new double*[file2_row];
         for(int a = 0; a < file2_row; a++) {
             m2[a] = new double[file2_col];
         }
-        int row = 0, col = 0;
         double x = 0;
-        while(inFile >> x) {
-            printf("%f\n", x);
-            printf("%i, %i\n", row, col);
+        int row = 0, col = 0;
+
+        while(fscanf(inFile, "%lf", &x) != EOF) {
             m2[row][col] = x;
             col++;
             if(col == file2_col) {
@@ -61,7 +52,8 @@ void MatrixMult(char file1[],char file2[],int T)
             }
         }
     }
-    inFile.close();
+    fclose(inFile);
+
 
     double** output = new double*[file1_row];
     for(int o = 0; o < file1_row; o++) {
@@ -88,6 +80,20 @@ void MatrixMult(char file1[],char file2[],int T)
         printf("Mine: %i, Number starting: %i, Number to do: %i\n", my_num, end, number_rows);
     }
 
+    for(int a = 0; a < file1_row; a++) {
+        for(int b = 0; b < file1_col; b++) {
+            printf("%f ", m1[a][b]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    for(int a = 0; a < file2_row; a++) {
+        for(int b = 0; b < file2_col; b++) {
+            printf("%f ", m2[a][b]);
+        }
+        printf("\n");
+    }
+    printf("\n");
     for(int a = 0; a < file1_row; a++) {
         for(int b = 0; b < file2_col; b++) {
             printf("%f ", output[a][b]);
