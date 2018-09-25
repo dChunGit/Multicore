@@ -11,10 +11,9 @@ public class TournamentLock implements Lock {
         int roundUp = (int) Math.pow(2, (int) Math.ceil(Math.log(numThreads)/Math.log(2)));
         this.numLevels = (int) Math.ceil(Math.log(roundUp)/Math.log(2));
         // initalize array of locks
-        int level = (int) Math.ceil(Math.log(roundUp)/Math.log(2));
-        int lockNums = (int) Math.pow(2, level)-1;
+        int lockNums = (int) Math.pow(2, numLevels) - 1;
 
-        gates = new PetersonAlgorithm[lockNums + 1];
+        gates = new PetersonAlgorithm[lockNums];
         this.lockPath = new int[numThreads][gates.length][2];
 
         for(int a  = 0; a < gates.length; a++) {
@@ -24,18 +23,19 @@ public class TournamentLock implements Lock {
 
     @Override
     public void lock(int pid) {
-        int currentPIDGate = pid + gates.length;
-        int currentGate = (pid + gates.length)/2;
+        int currentPIDGate = pid;
+        int currentGate = (pid + gates.length - 1)/2;
 
         for(int l = 0; l < numLevels; l++) {
             //based on index of thread, find its gate and try peterson's on it
             gates[currentGate].requestCS(currentPIDGate%2);
+
             //mark gate as locked so unlock can backtrack
             lockPath[pid][l][0] = currentGate;
             lockPath[pid][l][1] = currentPIDGate%2;
 
             currentPIDGate = currentGate;
-            currentGate /= 2;
+            currentGate = (currentGate - 1)/2;
         }
     }
 
