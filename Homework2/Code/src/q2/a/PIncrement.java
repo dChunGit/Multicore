@@ -9,8 +9,8 @@ public class PIncrement implements Runnable {
 
     public static int parallelIncrement(int c, int numThreads) {
         counter = c;
-        perThread = 100 / numThreads;
-        int remainder = 100 % numThreads;
+        perThread = 120000 / numThreads;
+        int remainder = 120000 % numThreads;
         Thread[] threads = new Thread[numThreads];
 
         for(int a = 0; a < numThreads; a++) {

@@ -4,16 +4,16 @@ public class PIncrement implements Runnable {
 
     private static volatile int counter = 0;
     private static int perThread = 0;
-    private static int X = -1;
-    private static int Y = -1;
+    private static volatile int X = -1;
+    private static volatile int Y = -1;
     private static boolean[] flagUp;
     private static int threadCount;
 
     public static int parallelIncrement(int c, int numThreads) {
         counter = c;
-        perThread = 100 / numThreads;
+        perThread = 120000 / numThreads;
         threadCount = numThreads;
-        int remainder = 100 % numThreads;
+        int remainder = 120000 % numThreads;
         Thread[] threads = new Thread[numThreads];
 
         flagUp = new boolean[numThreads];
