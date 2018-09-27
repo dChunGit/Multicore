@@ -80,10 +80,10 @@ void MatrixMult(char file1[],char file2[],int T)
         }
     }
     
-    printf("%i %i\n", file1_row, file2_col);
+    printf("%i %i \n", file1_row, file2_col);
     for(int a = 0; a < file1_row; a++) {
         for(int b = 0; b < file2_col; b++) {
-            printf("%lf ", output[a][b]);
+            printf("%lf  ", output[a][b]);
         }
         printf("\n");
     }
