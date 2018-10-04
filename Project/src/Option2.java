@@ -3,10 +3,10 @@ import java.util.concurrent.TimeUnit;
 public class Option2 implements Runnable {
    private static int perThread = 0;
    private static int counter;
-   private static Lock lock;
+   private static AbortLock lock;
 
    public static int parallelIncrement(int c, int numThreads) {
-      lock = new Lock();
+      lock = new AbortLock();
       counter = c;
 //      counter = c;
 //      perThread = 1 / numThreads;
