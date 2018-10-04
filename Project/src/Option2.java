@@ -1,5 +1,3 @@
-import java.util.concurrent.TimeUnit;
-
 public class Option2 extends SuperOption2 implements Runnable {
    private static int perThread = 0;
    private static int counter;
