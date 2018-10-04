@@ -1,6 +1,6 @@
 import java.util.concurrent.TimeUnit;
 
-public class Option2 implements Runnable {
+public class Option2 extends SuperOption2 implements Runnable {
    private static int perThread = 0;
    private static int counter;
    private static AbortLock lock;
@@ -61,8 +61,11 @@ public class Option2 implements Runnable {
       lock.lock(this);
       changeMe = 1;
       counter = 1;
+      tester = 1;
+      setTestee(1);
       lock.abort(this);
       changeMe = 0;
+      System.out.println(tester + " " + getTestee());
    }
 
    private static void increment(Option2 item) {
