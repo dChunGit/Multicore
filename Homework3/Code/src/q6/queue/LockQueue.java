@@ -38,8 +38,7 @@ public class LockQueue implements MyQueue {
     public Integer deq() {
         // implement your deq method here
         dequeue.lock();
-        Node pointer = header;
-        pointer = pointer.next;
+        Node pointer = header.next;
 
         if(pointer == null) {
             dequeue.unlock();

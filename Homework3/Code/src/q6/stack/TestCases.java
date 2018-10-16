@@ -6,13 +6,14 @@ import org.junit.Test;
 public class TestCases {
 
     @Test
-    public void testPush() {
+    public void testPush_LF() {
         LockFreeStack stack = new LockFreeStack();
         makeThread(stack, new int[]{0, 0, 0, 0});
+        Assert.assertEquals(stack.getCount(), 20);
     }
 
     @Test
-    public void testPop() {
+    public void testPop_LF() {
         LockFreeStack stack = new LockFreeStack();
         makeThread(stack, new int[]{0, 0, 0, 0});
 
@@ -23,6 +24,24 @@ public class TestCases {
         Assert.assertEquals(stack.toString(), "");
     }
 
+    @Test
+    public void testPush() {
+        LockStack stack = new LockStack();
+        makeThread(stack, new int[]{0, 0, 0, 0});
+        Assert.assertEquals(stack.getCount(), 20);
+    }
+
+    @Test
+    public void testPop() {
+        LockStack stack = new LockStack();
+        makeThread(stack, new int[]{0, 0, 0, 0});
+
+        makeThread(stack, new int[]{1, 1, 0, 1});
+        Assert.assertEquals(stack.getCount(), 10);
+
+        makeThread(stack, new int[]{1, 1});
+        Assert.assertEquals(stack.toString(), "");
+    }
 
     private void makeThread(MyStack stack, int[] types) {
         Thread[] threads = new Thread[types.length];
