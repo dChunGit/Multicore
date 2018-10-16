@@ -61,6 +61,10 @@ public class LockFreeQueue implements MyQueue {
         return value;
     }
 
+    public int getCount() {
+        return count.get();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node pointer = header.get().next.get();

@@ -55,6 +55,10 @@ public class LockQueue implements MyQueue {
         return value;
     }
 
+    public int getCount() {
+        return count.get();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node pointer = header.next;
