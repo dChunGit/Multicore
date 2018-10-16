@@ -1,5 +1,6 @@
 package queue;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LockQueue implements MyQueue {
@@ -7,11 +8,13 @@ public class LockQueue implements MyQueue {
     private ReentrantLock enqueue, dequeue;
     private Node header;
     private Node tail;
+    private AtomicInteger count;
 
     public LockQueue() {
       // implement your constructor here
         enqueue = new ReentrantLock();
         dequeue = new ReentrantLock();
+        count = new AtomicInteger(0);
 
         header = new Node(-1);
         header.next = null;
@@ -26,6 +29,7 @@ public class LockQueue implements MyQueue {
         enqueue.lock();
         tail.next = addNode;
         tail = addNode;
+        count.getAndIncrement();
         enqueue.unlock();
 
         return true;
@@ -39,11 +43,12 @@ public class LockQueue implements MyQueue {
 
         if(pointer == null) {
             dequeue.unlock();
-            return -1;
+            return null;
         }
 
         int value = pointer.value;
         header = pointer;
+        count.getAndDecrement();
 
         dequeue.unlock();
 

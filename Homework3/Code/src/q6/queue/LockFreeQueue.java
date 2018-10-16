@@ -1,51 +1,72 @@
 package queue;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeQueue implements MyQueue {
-    // you are free to add members
     private AtomicReference<Node> header, tail;
+    private AtomicInteger count;
 
     public LockFreeQueue() {
-        // implement your constructor here
         Node sentinel = new Node(-1);
         header = new AtomicReference<>(sentinel);
-        tail = header;
-        int a = 0;
+        tail = new AtomicReference<>(sentinel);
+        count = new AtomicInteger(0);
     }
 
     public boolean enq(Integer value) {
-        // implement your enq method here
         Node addNode = new Node(value);
+        Node pointer;
 
         while(true) {
-            AtomicReference<Node> pointer = tail;
-            AtomicReference<Node> next = pointer.get().next;
-            if (pointer == tail) {
-                if (next == null) {
-                    if (tail.get().next.compareAndSet(null, addNode)) {
+            pointer = tail.get();
+            Node next = pointer.next.get();
+            if(pointer == tail.get()) {
+                if(next == null) {
+                    if(tail.get().next.compareAndSet(next, addNode)) {
                         break;
                     }
                 } else {
-                    tail.compareAndSet(tail.get(), next.get());
+                    tail.compareAndSet(pointer, next);
                 }
             }
         }
-        tail.compareAndSet(tail.get(), addNode);
+        tail.compareAndSet(pointer, addNode);
+        count.getAndIncrement();
         return true;
     }
 
     public Integer deq() {
-        // implement your deq method here
-        return null;
+        int value;
+
+        while(true) {
+            Node head = header.get();
+            Node pointer = tail.get();
+            Node next = head.next.get();
+            if(head == header.get()) {
+                if(head == pointer) {
+                    if(next == null) {
+                        return null;
+                    }
+                    tail.compareAndSet(pointer, next);
+                } else {
+                    value = next.value;
+                    if(header.compareAndSet(head, next)) {
+                        break;
+                    }
+                }
+            }
+        }
+        count.getAndDecrement();
+        return value;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        Node pointer = header.get();
+        Node pointer = header.get().next.get();
         while(pointer != null) {
             sb.append(pointer.value);
-            if (pointer.next != null) {
+            if (pointer.next.get() != null) {
                 sb.append(", ");
             }
             pointer = pointer.next.get();
@@ -59,8 +80,10 @@ public class LockFreeQueue implements MyQueue {
 //        public Node next;
         public AtomicReference<Node> next;
 
+
         public Node(Integer x) {
             value = x;
+//            next = null;
             next = new AtomicReference<>(null);
         }
     }

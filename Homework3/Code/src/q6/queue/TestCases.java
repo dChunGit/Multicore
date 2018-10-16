@@ -1,12 +1,10 @@
 package queue;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCases {
 
-    @Ignore
     @Test
     public void testAdd_Lock() {
         LockQueue queue = new LockQueue();
@@ -14,7 +12,6 @@ public class TestCases {
         System.out.println(queue.toString());
     }
 
-    @Ignore
     @Test
     public void testDelete_Lock() {
         LockQueue queue = new LockQueue();
@@ -32,12 +29,14 @@ public class TestCases {
         System.out.println(queue.toString());
     }
 
-    @Ignore
     @Test
     public void testDelete_LockFree() {
-//        LockFreeQueue queue = new LockFreeQueue();
-//        makeThread(queue, new int[]{0, 1, 1, 0});
-//        System.out.println(queue.toString());
+        LockFreeQueue queue = new LockFreeQueue();
+        makeThread(queue, new int[]{0, 0, 0, 0});
+        System.out.println(queue.toString());
+        makeThread(queue, new int[]{1, 1, 1, 1});
+        System.out.println(queue.toString());
+        Assert.assertEquals(queue.toString(), "");
     }
 
 
