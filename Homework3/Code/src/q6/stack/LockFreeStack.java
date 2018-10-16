@@ -1,13 +1,16 @@
 package stack;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeStack implements MyStack {
     AtomicReference<Node> top;
+    AtomicInteger count;
 
     public LockFreeStack() {
         // implement your constructor here
         top = new AtomicReference<>(null);
+        count = new AtomicInteger(0);
     }
 
     public boolean push(Integer value) {
@@ -17,6 +20,7 @@ public class LockFreeStack implements MyStack {
           Node pointer = top.get();
           addNode.next = pointer;
           if (top.compareAndSet(pointer, addNode)) {
+              count.getAndIncrement();
               return true;
           }
           Thread.yield();
@@ -31,10 +35,15 @@ public class LockFreeStack implements MyStack {
           int value = pointer.value;
           Node next = pointer.next;
           if (top.compareAndSet(pointer, next)) {
+              count.getAndDecrement();
               return value;
           }
           Thread.yield();
         }
+    }
+
+    public int getCount() {
+        return count.get();
     }
 
     public String toString() {
