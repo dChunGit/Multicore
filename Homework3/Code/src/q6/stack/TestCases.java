@@ -5,6 +5,40 @@ import org.junit.Test;
 
 public class TestCases {
 
+
+    @Test
+    public void simpleTest_Lock() {
+        LockStack stack = new LockStack();
+        try {
+            simpleTest(stack);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void simpleTest_LF() {
+        LockFreeStack stack = new LockFreeStack();
+        try {
+            simpleTest(stack);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void simpleTest(MyStack stack) throws EmptyStack{
+        stack.push(1);
+        stack.push(2);
+        stack.push(5);
+        Assert.assertEquals("5,2,1,", stack.toString());
+        stack.pop();
+        Assert.assertEquals("2,1,", stack.toString());
+        stack.pop();
+        Assert.assertEquals("1,", stack.toString());
+        stack.pop();
+        Assert.assertEquals("", stack.toString());
+    }
+
     @Test
     public void testPush_LF() {
         LockFreeStack stack = new LockFreeStack();

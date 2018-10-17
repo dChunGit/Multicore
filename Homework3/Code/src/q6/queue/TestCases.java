@@ -21,15 +21,14 @@ public class TestCases {
         queue.enq(1);
         queue.enq(2);
         queue.enq(5);
-        System.out.println(queue.toString());
+        Assert.assertEquals("1,2,5,", queue.toString());
         queue.deq();
-        System.out.println(queue.toString());
+        Assert.assertEquals("2,5,", queue.toString());
         queue.deq();
-        System.out.println(queue.toString());
+        Assert.assertEquals("5,", queue.toString());
         queue.deq();
-        System.out.println(queue.toString());
-        System.out.println(queue.deq());
-
+        Assert.assertEquals("", queue.toString());
+        Assert.assertNull(queue.deq());
     }
 
     @Test
