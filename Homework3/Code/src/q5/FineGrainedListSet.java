@@ -77,10 +77,14 @@ public class FineGrainedListSet implements ListSet {
 	  
   public boolean contains(int value) {
     Node previous = head;
+    previous.lock.lock();
     Node current = head.next;
-    while (current != null && current.value <= value) {
-        previous.lock.lock();
-        current.lock.lock();
+    if (current == null) {
+        previous.lock.unlock();
+        return false;
+    }
+    current.lock.lock();
+    while (current.value <= value) {
         if (current.value == value) {
             current.lock.unlock();
             previous.lock.unlock();
@@ -88,7 +92,12 @@ public class FineGrainedListSet implements ListSet {
         }
         previous.lock.unlock();
         previous = current;
+        if (current.next == null) {
+            current.lock.unlock();
+            return false;
+        }
         current = current.next;
+        current.lock.lock();
     }
     return false;
   }
