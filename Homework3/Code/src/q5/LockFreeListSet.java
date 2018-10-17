@@ -72,12 +72,10 @@ public class LockFreeListSet implements ListSet {
 
     protected class Node {
         public Integer value;
-//        private Node next;
         public AtomicMarkableReference<Node> next;
 
         public Node(Integer x) {
             value = x;
-//            next = null;
             next = new AtomicMarkableReference<>(null, false);
         }
     }
