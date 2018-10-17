@@ -1,37 +1,37 @@
 package queue;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicStampedReference;
 
 public class LockFreeQueue implements MyQueue {
-    private AtomicReference<Node> header, tail;
+    private AtomicStampedReference<Node> header, tail;
     private AtomicInteger count;
 
     public LockFreeQueue() {
         Node sentinel = new Node(-1);
-        header = new AtomicReference<>(sentinel);
-        tail = new AtomicReference<>(sentinel);
+        header = new AtomicStampedReference<>(sentinel, 0);
+        tail = new AtomicStampedReference<>(sentinel, 0);
         count = new AtomicInteger(0);
     }
 
     public boolean enq(Integer value) {
         Node addNode = new Node(value);
-        Node pointer;
+        AtomicStampedReference<Node> pointer;
 
         while(true) {
-            pointer = tail.get();
-            Node next = pointer.next.get();
-            if(pointer == tail.get()) {
-                if(next == null) {
-                    if(tail.get().next.compareAndSet(next, addNode)) {
+            pointer = tail;
+            AtomicStampedReference<Node> next = pointer.getReference().next;
+            if(pointer == tail) {
+                if(next.getReference() == null) {
+                    if(tail.getReference().next.compareAndSet(next.getReference(), addNode, next.getStamp(), next.getStamp()+1)) {
                         break;
                     }
                 } else {
-                    tail.compareAndSet(pointer, next);
+                    tail.compareAndSet(pointer.getReference(), next.getReference(), pointer.getStamp(), pointer.getStamp() + 1);
                 }
             }
         }
-        tail.compareAndSet(pointer, addNode);
+        tail.compareAndSet(pointer.getReference(), addNode, pointer.getStamp(), pointer.getStamp() + 1);
         count.getAndIncrement();
         return true;
     }
@@ -40,18 +40,18 @@ public class LockFreeQueue implements MyQueue {
         int value;
 
         while(true) {
-            Node head = header.get();
-            Node pointer = tail.get();
-            Node next = head.next.get();
-            if(head == header.get()) {
+            AtomicStampedReference<Node> head = header;
+            AtomicStampedReference<Node> pointer = tail;
+            AtomicStampedReference<Node> next = head.getReference().next;
+            if(head == header) {
                 if(head == pointer) {
                     if(next == null) {
                         return null;
                     }
-                    tail.compareAndSet(pointer, next);
+                    tail.compareAndSet(pointer.getReference(), next.getReference(), pointer.getStamp(), pointer.getStamp() + 1);
                 } else {
-                    value = next.value;
-                    if(header.compareAndSet(head, next)) {
+                    value = next.getReference().value;
+                    if(header.compareAndSet(head.getReference(), next.getReference(), head.getStamp(), head.getStamp() + 1)) {
                         break;
                     }
                 }
@@ -67,13 +67,13 @@ public class LockFreeQueue implements MyQueue {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        Node pointer = header.get().next.get();
+        Node pointer = header.getReference().next.getReference();
         while(pointer != null) {
             sb.append(pointer.value);
-            if (pointer.next.get() != null) {
+            if (pointer.next.getReference() != null) {
                 sb.append(", ");
             }
-            pointer = pointer.next.get();
+            pointer = pointer.next.getReference();
         }
 
         return sb.toString();
@@ -82,13 +82,13 @@ public class LockFreeQueue implements MyQueue {
     protected class Node {
         public Integer value;
 //        public Node next;
-        public AtomicReference<Node> next;
+        public AtomicStampedReference<Node> next;
 
 
         public Node(Integer x) {
             value = x;
 //            next = null;
-            next = new AtomicReference<>(null);
+            next = new AtomicStampedReference<>(null, 0);
         }
     }
 }
