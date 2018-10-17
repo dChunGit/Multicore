@@ -8,62 +8,22 @@ public class SimpleTest {
     @Test
     public void superSimple_coarse() {
         CoarseGrainedListSet list = new CoarseGrainedListSet();
-        list.add(1);
-        list.add(10);
-        list.add(3);
-        list.add(5);
-        list.add(0);
-        list.add(11);
-        Assert.assertEquals("0,1,3,5,10,11,", list.toString());
-        Assert.assertTrue(list.contains(3));
-        Assert.assertFalse(list.contains(12));
-        Assert.assertTrue(list.contains(0));
-        Assert.assertTrue(list.contains(11));
-        Assert.assertFalse(list.contains(-1));
-        list.remove(0);
-        list.remove(11);
-        list.remove(1);
-        Assert.assertFalse(list.contains(1));
-        list.remove(5);
-        list.add(6);
-        list.remove(3);
-        list.remove(10);
-        Assert.assertEquals("6,", list.toString());
-        list.remove(6);
-        Assert.assertEquals("", list.toString());
+        checkList_superSimple(list);
     }
 
     @Test
     public void superSimple_fine() {
         FineGrainedListSet list = new FineGrainedListSet();
-        list.add(1);
-        list.add(10);
-        list.add(3);
-        list.add(5);
-        list.add(0);
-        list.add(11);
-        Assert.assertEquals("0,1,3,5,10,11,", list.toString());
-        Assert.assertTrue(list.contains(3));
-        Assert.assertFalse(list.contains(12));
-        Assert.assertTrue(list.contains(0));
-        Assert.assertTrue(list.contains(11));
-        Assert.assertFalse(list.contains(-1));
-        list.remove(0);
-        list.remove(11);
-        list.remove(1);
-        Assert.assertFalse(list.contains(1));
-        list.remove(5);
-        list.add(6);
-        list.remove(3);
-        list.remove(10);
-        Assert.assertEquals("6,", list.toString());
-        list.remove(6);
-        Assert.assertEquals("", list.toString());
+        checkList_superSimple(list);
     }
 
     @Test
     public void superSimple_free() {
         LockFreeListSet list = new LockFreeListSet();
+        checkList_superSimple(list);
+    }
+
+    private void checkList_superSimple(ListSet list) {
         list.add(1);
         list.add(10);
         list.add(3);
