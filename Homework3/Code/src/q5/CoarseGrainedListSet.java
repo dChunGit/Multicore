@@ -4,15 +4,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CoarseGrainedListSet implements ListSet {
     private Node head;
-    private static ReentrantLock lock;
-	
+
   public CoarseGrainedListSet() {
     head = new Node(null);
-    lock = new ReentrantLock();
   }
   
-  public boolean add(int value) {
-    lock.lock();
+  public synchronized boolean add(int value) {
     Node add = new Node(value);
     Node current = head;
     while (current.next != null && current.next.value < value) {
@@ -20,49 +17,40 @@ public class CoarseGrainedListSet implements ListSet {
     }
     if (current.next == null) {
         current.next = add;
-        lock.unlock();
         return true;
     }
     else if (current.next.value == value) {
-        lock.unlock();
         return false;
     }
     else {
         add.next = current.next;
         current.next = add;
-        lock.unlock();
         return true;
     }
   }
   
-  public boolean remove(int value) {
-    lock.lock();
+  public synchronized boolean remove(int value) {
     Node previous = head;
     Node current = head.next;
     while (current != null) {
         if (current.value == value) {
             previous.next = current.next;
-            lock.unlock();
             return true;
         }
         previous = current;
         current = current.next;
     }
-    lock.unlock();
     return false;
   }
   
-  public boolean contains(int value) {
-	lock.lock();
+  public synchronized boolean contains(int value) {
     Node current = head.next;
     while (current != null) {
         if (current.value == value) {
-            lock.unlock();
             return true;
         }
         current = current.next;
     }
-    lock.unlock();
     return false;
   }
   

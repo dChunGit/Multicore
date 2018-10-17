@@ -25,7 +25,7 @@ public class FineGrainedListSet implements ListSet {
   protected class Node {
     public Integer value;
     public Node next;
-			    
+
   	public Node(Integer x) {
   		value = x;
   		next = null;
