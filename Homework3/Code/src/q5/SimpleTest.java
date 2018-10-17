@@ -6,16 +6,78 @@ import org.junit.Test;
 public class SimpleTest {
 
     @Test
-    public void superSimple() {
-        LockFreeListSet list = new LockFreeListSet();
+    public void superSimple_coarse() {
+        CoarseGrainedListSet list = new CoarseGrainedListSet();
         list.add(1);
-        System.out.println(list.toString());
-
         list.add(10);
         list.add(3);
         list.add(5);
         list.add(0);
         list.add(11);
+        Assert.assertEquals("0,1,3,5,10,11,", list.toString());
+        Assert.assertTrue(list.contains(3));
+        Assert.assertFalse(list.contains(12));
+        Assert.assertTrue(list.contains(0));
+        Assert.assertTrue(list.contains(11));
+        Assert.assertFalse(list.contains(-1));
+        list.remove(0);
+        list.remove(11);
+        list.remove(1);
+        Assert.assertFalse(list.contains(1));
+        list.remove(5);
+        list.remove(3);
+        list.remove(10);
+        System.out.println(list.toString());
+    }
+
+    @Test
+    public void superSimple_fine() {
+        FineGrainedListSet list = new FineGrainedListSet();
+        list.add(1);
+        list.add(10);
+        list.add(3);
+        list.add(5);
+        list.add(0);
+        list.add(11);
+        Assert.assertEquals("0,1,3,5,10,11,", list.toString());
+        Assert.assertTrue(list.contains(3));
+        Assert.assertFalse(list.contains(12));
+        Assert.assertTrue(list.contains(0));
+        Assert.assertTrue(list.contains(11));
+        Assert.assertFalse(list.contains(-1));
+        list.remove(0);
+        list.remove(11);
+        list.remove(1);
+        Assert.assertFalse(list.contains(1));
+        list.remove(5);
+        list.remove(3);
+        list.remove(10);
+        System.out.println(list.toString());
+    }
+
+    @Test
+    public void superSimple_free() {
+        LockFreeListSet list = new LockFreeListSet();
+        list.add(1);
+        list.add(10);
+        list.add(3);
+        list.add(5);
+        list.add(0);
+        list.add(11);
+        Assert.assertEquals("0,1,3,5,10,11,", list.toString());
+        Assert.assertTrue(list.contains(3));
+        Assert.assertFalse(list.contains(12));
+        Assert.assertTrue(list.contains(0));
+        Assert.assertTrue(list.contains(11));
+        Assert.assertFalse(list.contains(-1));
+        list.remove(0);
+        list.remove(11);
+        list.remove(1);
+        Assert.assertFalse(list.contains(1));
+        list.remove(5);
+        list.remove(3);
+        list.remove(10);
+        System.out.println(list.toString());
     }
 
     @Test
