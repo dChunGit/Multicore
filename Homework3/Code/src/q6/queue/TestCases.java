@@ -6,6 +6,33 @@ import org.junit.Test;
 public class TestCases {
 
     @Test
+    public void simpleTest_Lock() {
+        LockQueue queue = new LockQueue();
+        simpleTest(queue);
+    }
+
+    @Test
+    public void simpleTest_LF() {
+        LockFreeQueue queue=  new LockFreeQueue();
+        simpleTest(queue);
+    }
+
+    private void simpleTest(MyQueue queue) {
+        queue.enq(1);
+        queue.enq(2);
+        queue.enq(5);
+        System.out.println(queue.toString());
+        queue.deq();
+        System.out.println(queue.toString());
+        queue.deq();
+        System.out.println(queue.toString());
+        queue.deq();
+        System.out.println(queue.toString());
+        System.out.println(queue.deq());
+
+    }
+
+    @Test
     public void testAdd_Lock() {
         LockQueue queue = new LockQueue();
         makeThread(queue, new int[]{0, 0, 0, 0});

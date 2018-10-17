@@ -61,11 +61,9 @@ public class LockQueue implements MyQueue {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node pointer = header.next;
+
         while(pointer != null) {
-            sb.append(pointer.value);
-            if (pointer.next != null) {
-                sb.append(", ");
-            }
+            sb.append(pointer.value).append(",");
             pointer = pointer.next;
         }
 

@@ -49,11 +49,9 @@ public class LockFreeStack implements MyStack {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node pointer = top.get();
+
         while (pointer != null) {
-          sb.append(pointer.value);
-          if (pointer.next != null) {
-              sb.append(", ");
-          }
+          sb.append(pointer.value).append(",");
           pointer = pointer.next;
         }
 

@@ -21,18 +21,22 @@ public class LockFreeQueue implements MyQueue {
         while(true) {
             pointer = tail;
             AtomicStampedReference<Node> next = pointer.getReference().next;
+
             if(pointer == tail) {
                 if(next.getReference() == null) {
-                    if(tail.getReference().next.compareAndSet(next.getReference(), addNode, next.getStamp(), next.getStamp()+1)) {
+                    if(tail.getReference().next.compareAndSet(next.getReference(), addNode,
+                            next.getStamp(), next.getStamp()+1)) {
                         break;
                     }
-                } else {
-                    tail.compareAndSet(pointer.getReference(), next.getReference(), pointer.getStamp(), pointer.getStamp() + 1);
-                }
+                } else tail.compareAndSet(pointer.getReference(), next.getReference(),
+                            pointer.getStamp(), pointer.getStamp() + 1);
             }
         }
-        tail.compareAndSet(pointer.getReference(), addNode, pointer.getStamp(), pointer.getStamp() + 1);
+
+        tail.compareAndSet(pointer.getReference(), addNode,
+                pointer.getStamp(), pointer.getStamp() + 1);
         count.getAndIncrement();
+
         return true;
     }
 
@@ -40,24 +44,28 @@ public class LockFreeQueue implements MyQueue {
         int value;
 
         while(true) {
-            AtomicStampedReference<Node> head = header;
-            AtomicStampedReference<Node> pointer = tail;
-            AtomicStampedReference<Node> next = head.getReference().next;
+            AtomicStampedReference<Node> head = header, pointer = tail, next = head.getReference().next;
+
             if(head == header) {
-                if(head == pointer) {
-                    if(next == null) {
+                if(head.getReference() == pointer.getReference()) {
+                    if(next.getReference() == null) {
                         return null;
                     }
-                    tail.compareAndSet(pointer.getReference(), next.getReference(), pointer.getStamp(), pointer.getStamp() + 1);
+
+                    tail.compareAndSet(pointer.getReference(), next.getReference(),
+                            pointer.getStamp(), pointer.getStamp() + 1);
                 } else {
                     value = next.getReference().value;
-                    if(header.compareAndSet(head.getReference(), next.getReference(), head.getStamp(), head.getStamp() + 1)) {
+                    if(header.compareAndSet(head.getReference(), next.getReference(),
+                            head.getStamp(), head.getStamp() + 1)) {
                         break;
                     }
                 }
             }
         }
+
         count.getAndDecrement();
+
         return value;
     }
 
@@ -68,11 +76,9 @@ public class LockFreeQueue implements MyQueue {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node pointer = header.getReference().next.getReference();
+
         while(pointer != null) {
-            sb.append(pointer.value);
-            if (pointer.next.getReference() != null) {
-                sb.append(", ");
-            }
+            sb.append(pointer.value).append(",");
             pointer = pointer.next.getReference();
         }
 
@@ -81,13 +87,11 @@ public class LockFreeQueue implements MyQueue {
 
     protected class Node {
         public Integer value;
-//        public Node next;
         public AtomicStampedReference<Node> next;
 
 
         public Node(Integer x) {
             value = x;
-//            next = null;
             next = new AtomicStampedReference<>(null, 0);
         }
     }
