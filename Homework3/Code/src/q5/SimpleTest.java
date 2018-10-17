@@ -6,6 +6,15 @@ import org.junit.Test;
 public class SimpleTest {
 
     @Test
+    public void superSimple() {
+        CoarseGrainedListSet list = new CoarseGrainedListSet();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        System.out.println(list.toString());
+    }
+
+    @Test
     public void testCoarseGrainedListSet() {
         CoarseGrainedListSet list = new CoarseGrainedListSet();
         makeThread(list);
