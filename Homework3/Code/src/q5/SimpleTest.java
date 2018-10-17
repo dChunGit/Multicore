@@ -7,14 +7,15 @@ public class SimpleTest {
 
     @Test
     public void superSimple() {
-        FineGrainedListSet list = new FineGrainedListSet();
+        LockFreeListSet list = new LockFreeListSet();
         list.add(1);
+        System.out.println(list.toString());
+
         list.add(10);
         list.add(3);
         list.add(5);
         list.add(0);
         list.add(11);
-        System.out.println(list.toString());
     }
 
     @Test

@@ -1,33 +1,81 @@
 package q5;
 
+import java.util.concurrent.atomic.AtomicMarkableReference;
+
 public class LockFreeListSet implements ListSet {
-// you are free to add members
+
+    private Node head;
 	
   public LockFreeListSet() {
-    // implement your constructor here	  
+    head = new Node(null);
   }
 	  
   public boolean add(int value) {
-	// implement your add method here	
-    return false;
+    Node add = new Node(value);
+	while (true) {
+        Node previous = head;
+        Node current = (Node) head.reference.getReference();
+        while (current != null && current.value < value) {
+            previous = (Node) previous.reference.getReference();
+            current = (Node) current.reference.getReference();
+        }
+        if (current == null || current.value > value) {
+            add.next = previous.next;
+            if (previous.reference.compareAndSet(current, add, false, false)) {
+                return true;
+            }
+        }
+        else if (current.value == value) {
+            return false;
+        }
+    }
   }
 	  
   public boolean remove(int value) {
-    // implement your remove method here	
-	return false;
+      while (true) {
+          Node previous = head;
+          Node current = (Node) head.reference.getReference();
+          while (current != null && current.value < value) {
+              previous = (Node) previous.reference.getReference();
+              current = (Node) current.reference.getReference();
+          }
+          if (current == null || current.value > value) {
+              return false;
+          }
+          else if (current.value == value) {
+              if (current.reference.attemptMark(current.next, true)) {
+                  if (previous.reference.compareAndSet(current, current.next, false, false)) {
+                      return true;
+                  }
+              }
+          }
+      }
   }
 	  
   public boolean contains(int value) {
-	// implement your contains method here	
-	return false;
+      while (true) {
+          Node current = (Node) head.reference.getReference();
+          while (current != null && current.value < value) {
+              current = (Node) current.reference.getReference();
+          }
+          if (current.value == value && !current.reference.isMarked()) {
+              return true;
+          }
+
+          else if (current.value > value) {
+              return false;
+          }
+      }
   }
 	  
   protected class Node {
   	public Integer value;
-  	public Node next;
+  	private Node next;
+  	public AtomicMarkableReference reference;
   	public Node(Integer x) {
   	  value = x;
   	  next = null;
+  	  reference = new AtomicMarkableReference(this.next, false);
   	}
   }
 
@@ -36,6 +84,12 @@ public class LockFreeListSet implements ListSet {
   check simpleTest for more info
   */
   public String toString() {
-    return "";
+      StringBuilder sb = new StringBuilder();
+      Node current = (Node) head.reference.getReference();
+      while (current != null) {
+          sb.append(current.value).append(",");
+          current = (Node) current.reference.getReference();
+      }
+      return sb.toString();
   }
 }
