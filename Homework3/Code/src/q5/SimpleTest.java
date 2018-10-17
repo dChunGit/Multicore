@@ -25,9 +25,12 @@ public class SimpleTest {
         list.remove(1);
         Assert.assertFalse(list.contains(1));
         list.remove(5);
+        list.add(6);
         list.remove(3);
         list.remove(10);
-        System.out.println(list.toString());
+        Assert.assertEquals("6,", list.toString());
+        list.remove(6);
+        Assert.assertEquals("", list.toString());
     }
 
     @Test
@@ -50,9 +53,12 @@ public class SimpleTest {
         list.remove(1);
         Assert.assertFalse(list.contains(1));
         list.remove(5);
+        list.add(6);
         list.remove(3);
         list.remove(10);
-        System.out.println(list.toString());
+        Assert.assertEquals("6,", list.toString());
+        list.remove(6);
+        Assert.assertEquals("", list.toString());
     }
 
     @Test
@@ -75,9 +81,12 @@ public class SimpleTest {
         list.remove(1);
         Assert.assertFalse(list.contains(1));
         list.remove(5);
+        list.add(6);
         list.remove(3);
         list.remove(10);
-        System.out.println(list.toString());
+        Assert.assertEquals("6,", list.toString());
+        list.remove(6);
+        Assert.assertEquals("", list.toString());
     }
 
     @Test
