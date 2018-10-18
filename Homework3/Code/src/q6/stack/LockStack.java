@@ -23,8 +23,8 @@ public class LockStack implements MyStack {
         Node node = new Node(value);
 
         pushLock.lock();
-        node.next = header;
-        header = node;
+        node.next = header.next;
+        header.next = node;
         count.getAndIncrement();
         pushLock.unlock();
 

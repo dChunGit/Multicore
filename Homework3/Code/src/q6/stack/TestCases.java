@@ -37,6 +37,12 @@ public class TestCases {
         Assert.assertEquals("1,", stack.toString());
         stack.pop();
         Assert.assertEquals("", stack.toString());
+        try {
+            stack.pop();
+            Assert.fail("EmptyStack Exception expected");
+        } catch (EmptyStack e) {
+            Assert.assertEquals("", stack.toString());
+        }
     }
 
     @Test
