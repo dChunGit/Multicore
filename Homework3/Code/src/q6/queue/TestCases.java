@@ -1,6 +1,7 @@
 package queue;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCases {
@@ -35,7 +36,7 @@ public class TestCases {
     public void testAdd_Lock() {
         LockQueue queue = new LockQueue();
         makeThread(queue, new int[]{0, 0, 0, 0});
-        Assert.assertEquals(queue.getCount(), 20);
+        Assert.assertEquals(queue.getCount(), 800);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class TestCases {
         makeThread(queue, new int[]{0, 0, 0, 0});
 
         makeThread(queue, new int[]{1, 1, 0, 1});
-        Assert.assertEquals(queue.getCount(), 10);
+        Assert.assertEquals(queue.getCount(), 400);
 
         makeThread(queue, new int[]{1, 1});
         Assert.assertEquals(queue.toString(), "");
@@ -54,19 +55,22 @@ public class TestCases {
     public void testAdd_LockFree() {
         LockFreeQueue queue = new LockFreeQueue();
         makeThread(queue, new int[]{0, 0, 0, 0});
-        Assert.assertEquals(queue.getCount(), 20);
+        Assert.assertEquals(queue.getCount(), 800);
     }
 
     @Test
     public void testDelete_LockFree() {
+        System.out.println("This");
         LockFreeQueue queue = new LockFreeQueue();
         makeThread(queue, new int[]{0, 0, 0, 0});
 
         makeThread(queue, new int[]{1, 1, 0, 1});
-        Assert.assertEquals(queue.getCount(), 10);
+        System.out.println(queue.toString());
+        Assert.assertEquals(queue.getCount(), 400);
 
         makeThread(queue, new int[]{1, 1});
-        Assert.assertEquals(queue.toString(), "");
+        Assert.assertEquals("", queue.toString());
+        System.out.println("That");
     }
 
     private void makeThread(MyQueue queue, int[] types) {
@@ -74,7 +78,7 @@ public class TestCases {
         int count = 0;
 
         for(int a = 0; a < threads.length; a++) {
-            threads[a] = new Thread(new MyThread(count, count + 5, queue, types[a]));
+            threads[a] = new Thread(new MyThread(count, count + 200, queue, types[a]));
             threads[a].start();
             count+=5;
         }
@@ -108,13 +112,7 @@ public class TestCases {
                 if (type == 0) {
                     queue.enq(i);
                 } else {
-                    queue.deq();
-                }
-                // this sleep is to extend the time it takes to execute, allowing other threads to interject more frequently
-                try {
-                    Thread.sleep(5L);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println(queue.deq());
                 }
             }
         }

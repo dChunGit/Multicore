@@ -24,7 +24,7 @@ public class LockFreeQueue implements MyQueue {
 
             if(pointer == tail) {
                 if(next.getReference() == null) {
-                    if(tail.getReference().next.compareAndSet(next.getReference(), addNode,
+                    if(pointer.getReference().next.compareAndSet(next.getReference(), addNode,
                             next.getStamp(), next.getStamp()+1)) {
                         break;
                     }
@@ -56,7 +56,7 @@ public class LockFreeQueue implements MyQueue {
                             pointer.getStamp(), pointer.getStamp() + 1);
                 } else {
                     value = next.getReference().value;
-                    if(header.compareAndSet(head.getReference(), next.getReference(),
+                    if (header.compareAndSet(head.getReference(), next.getReference(),
                             head.getStamp(), head.getStamp() + 1)) {
                         break;
                     }
