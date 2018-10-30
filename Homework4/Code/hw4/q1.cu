@@ -12,15 +12,19 @@ using namespace std;
 #define BLOCK_WIDTH 1
 
 __global__ void setup(int* small) {
-    small[blockIdx.x] = 0;
-    if(blockIdx.x == 1) {
-        small[blockIdx.x] = 1;
-    }
+    small[blockIdx.x] = 1;
     __syncthreads();
 }
 
-__global__ void min(int* small, int* data) {
-    printf("Thread %d read %d with value %d \n", blockIdx.x, data[blockIdx.x], small[blockIdx.x]);
+__global__ void min(int* small, int* data, int n) {
+    int i = blockIdx.x;
+    int j = threadIdx.x;
+    // printf("Thread %d read %d with value %d \n", blockIdx.x, data[blockIdx.x], small[blockIdx.x]);
+    if(i != j) {
+        if(data[j] < data[i]) {
+            small[i] = 0;
+        }
+    }
     __syncthreads();
 }
 
@@ -28,6 +32,7 @@ __global__ void finish(int* small, int* data, int* max) {
     if(small[blockIdx.x] == 1) {
         *max = data[blockIdx.x];
     }
+    __syncthreads();
 }
 
 int main(int argc,char **argv) {
@@ -59,10 +64,13 @@ int main(int argc,char **argv) {
 
     // launch the kernel
     setup<<<array.size(), BLOCK_WIDTH>>>(d_small);
-    min<<<array.size(), BLOCK_WIDTH>>>(d_small, d_data);
+    min<<<array.size(), array.size()>>>(d_small, d_data, (int) array.size());
     finish<<<array.size(), BLOCK_WIDTH>>>(d_small, d_data, d_max);
 
     cudaMemcpy(&max, d_max, sizeof(int), cudaMemcpyDeviceToHost);
+    printf("\n");
+    printf("%d ", max);
+    printf("\n");
 
     cudaFree(d_data);
     cudaFree(d_max);
