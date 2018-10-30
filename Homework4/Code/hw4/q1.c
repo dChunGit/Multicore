@@ -66,7 +66,7 @@ int main(int argc,char **argv) {
     // hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
 
     // force the printf()s to flush
-    // cudaDeviceSynchronize();
+    cudaDeviceSynchronize();
 
     return 0;
 }

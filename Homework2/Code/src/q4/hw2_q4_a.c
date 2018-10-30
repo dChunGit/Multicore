@@ -10,7 +10,7 @@ void MatrixMult(char file1[],char file2[],int T)
     double** m2;
     
     // Open files and read into 2d arrays
-    FILE* inFile = fopen(file1, "r");
+    FILE* inFile = fopen("inp.txt", "r");
     if(inFile != NULL) {
         fscanf(inFile, "%d", &file1_row);
         fscanf(inFile, "%d", &file1_col);
