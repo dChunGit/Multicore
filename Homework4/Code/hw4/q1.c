@@ -4,45 +4,22 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+// #include <cuda.h>
+
 using namespace std;
 
 #define NUM_BLOCKS 16
 #define BLOCK_WIDTH 1
 
-// __global__ void hello() {
+// __global__ void min() {
 //     printf("Hello world! I'm a thread in block %d\n", blockIdx.x);
 // }
 
-
 int main(int argc,char **argv) {
     vector<int> array;
-    int x = 0, i = 0;
+    int i = 0;
 
-    // FILE* inFile = fopen("inp2.txt", "r");
-    // if(inFile != NULL) {
-    //     while(inFile>>x) {
-    //         array.push_back(x); 
-    //         i++;
-    //     }
-
-    //     // while(fscanf(inFile, "%d", &x) != EOF) {
-    //     //     printf("%d ", x);
-    //     //     array.push_back(x);
-    //     //     i++;
-    //     // }
-    // }
-    // // fclose(inFile);
-    // ifstream inFile;
-    // stringstream stream;
-    // inFile.open("inp2.txt", ifstream::in);
-    // if(inFile.is_open()) {
-    //     while(inFile.good()) {
-    //         inFile.getline(inFile, x, ', ');
-    //         printf("%d ", x);
-    //         i++;
-    //     }
-    // }
-    ifstream file( "inp2.txt" ) ;
+    ifstream file( "inp2.txt" );
     int number;
     char delimiter;
     while((file >> number >> delimiter) && (delimiter == ',')) {
@@ -52,21 +29,29 @@ int main(int argc,char **argv) {
         i++;
     }
 
-    printf("\n");
+    int* iB = new int[array.size()];
+    int * d_iB;
 
-    printf("\n");
-    
-    for(int a = 0; a < i; a++) {
-        printf("%d ", array[a]);
+    copy(array.begin(), array.end(), iB);
+
+
+    int size = sizeof(int)*array.size();
+    for(int a = 0; a < array.size(); a++) {
+        printf("%d ", iB[a]);
     }
 
-    printf("\n");
+    printf("/n");
+    printf("%d", array.size());
+    printf("/n");
+    // cudaMalloc((void **) &d_iB, size);
+
+    // cudaMemcpy(d_iB, &iB, size, cudaMemcpyHostToDevice);
 
     // launch the kernel
-    // hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
+    // min<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
 
     // force the printf()s to flush
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     return 0;
 }
