@@ -5,16 +5,16 @@ using namespace std;
 #define NUM_BLOCKS 16
 #define BLOCK_WIDTH 1
 
-__global__ void hello() {
-    printf("Hello world! I'm a thread in block %d\n", blockIdx.x);
-}
+// __global__ void hello() {
+//     printf("Hello world! I'm a thread in block %d\n", blockIdx.x);
+// }
 
 
 int main(int argc,char **argv) {
     vector<int> array;
     int x, i = 0;
 
-    FILE* inFile = fopen(file1, "r");
+    FILE* inFile = fopen("inp.txt", "r");
     if(inFile != NULL) {
         while(fscanf(inFile, "%lf", &x) != EOF) {
             array[i] = x;
@@ -28,10 +28,10 @@ int main(int argc,char **argv) {
     }
 
     // launch the kernel
-    hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
+    // hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
 
     // force the printf()s to flush
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     printf("That's all!\n");
 
