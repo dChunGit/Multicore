@@ -29,7 +29,6 @@ __global__ void parallelPrefix(int* odd, int* ppref, int* offset, int n) {
 		return;
 	}
 	prefs[threadIdx.x] = odd[thid];
-	// printf("%d, %d \n", thid, prefs[thid%THREADS]);
 
 	__syncthreads();
 
@@ -57,7 +56,6 @@ __global__ void sum_reduce(int* offset, int n) {
 
 	printf("\n");
 	prefs[thid] = offset[thid];
-	// printf("%d: %d \n", thid, prefs[thid]);
 	__syncthreads();
 
 	int val = 0;
@@ -74,7 +72,6 @@ __global__ void sum_reduce(int* offset, int n) {
 		__syncthreads();
 	}
 	offset[thid] = prefs[thid];
-	// printf("%d: %d \n", prefs[thid], thid);
 }
 
 
@@ -83,7 +80,6 @@ __global__ void concat(int* offset, int*ppref) {
 	if(blockIdx.x > 0) {
 		ppref[thid] += offset[blockIdx.x - 1];
 	}
-	//need to take care of other blocks, run prefix on blocks
 }
 
 __global__ void finish(int* odd, int* ppref, int* results, int* data, int n) {
@@ -150,20 +146,11 @@ int main(int argc,char **argv) {
     //do parallel prefix on odd array to find distance from the start
     parallelPrefix<<<blocks, THREADS, sizeof(int)*THREADS>>>(d_odd, d_ppref, d_offset, array.size());
     cudaMemcpy(offset, d_offset, sizeof(int)*blocks, cudaMemcpyDeviceToHost); 
-    // printf("\n");
-    // for(int a = 0; a < blocks; a++) {
-    // 	printf("%d ", offset[a]);
-    // }
 
     sum_reduce<<<1, blocks, sizeof(int)*blocks>>>(d_offset, blocks);
     concat<<<blocks, THREADS>>>(d_offset, d_ppref);
 
     cudaMemcpy(ppref, d_ppref, size, cudaMemcpyDeviceToHost); 
-
-    // printf("\n");
-    // for(int a = 0; a < array.size(); a++) {
-    // 	printf("(%d:%d), ", ppref[a], data[a]);
-    // }
 
     //create array, if odd from small, copy into location of array
     int* results = new int[count];
