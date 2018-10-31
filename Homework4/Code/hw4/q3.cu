@@ -150,20 +150,20 @@ int main(int argc,char **argv) {
     //do parallel prefix on odd array to find distance from the start
     parallelPrefix<<<blocks, THREADS, sizeof(int)*THREADS>>>(d_odd, d_ppref, d_offset, array.size());
     cudaMemcpy(offset, d_offset, sizeof(int)*blocks, cudaMemcpyDeviceToHost); 
-    printf("\n");
-    for(int a = 0; a < blocks; a++) {
-    	printf("%d ", offset[a]);
-    }
+    // printf("\n");
+    // for(int a = 0; a < blocks; a++) {
+    // 	printf("%d ", offset[a]);
+    // }
 
     sum_reduce<<<1, blocks, sizeof(int)*blocks>>>(d_offset, blocks);
     concat<<<blocks, THREADS>>>(d_offset, d_ppref);
 
     cudaMemcpy(ppref, d_ppref, size, cudaMemcpyDeviceToHost); 
 
-    printf("\n");
-    for(int a = 0; a < array.size(); a++) {
-    	printf("(%d:%d), ", ppref[a], data[a]);
-    }
+    // printf("\n");
+    // for(int a = 0; a < array.size(); a++) {
+    // 	printf("(%d:%d), ", ppref[a], data[a]);
+    // }
 
     //create array, if odd from small, copy into location of array
     int* results = new int[count];
@@ -171,9 +171,18 @@ int main(int argc,char **argv) {
     cudaMalloc((void **) &d_results, sizeof(int)*count);
     finish<<<blocks, THREADS>>>(d_odd, d_ppref, d_results, d_data, array.size());
     cudaMemcpy(results, d_results, sizeof(int)*count, cudaMemcpyDeviceToHost);
-    printf("\n");
-    for(int a = 0; a < count; a++) {
-        printf("%d ", results[a]);
+    // printf("\n");
+    // for(int a = 0; a < count; a++) {
+    //     printf("%d ", results[a]);
+    // }
+
+    FILE *fp = fopen("q3.txt", "w");
+    if(fp != NULL) {
+        for(int a = 0; a < count - 1; a++) {
+            fprintf(fp, "%d, ", results[a]);
+        }
+        fprintf(fp, "%d", results[count - 1]);
+        fclose(fp);
     }
 
     cudaFree(d_data);
