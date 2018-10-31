@@ -8,34 +8,7 @@
 
 using namespace std;
 
-#define THREADS 256
-
-__global__ void setup(int* small, int n) {
-    int thid = blockIdx.x * blockDim.x + threadIdx.x;
-    if(thid < n) {
-        small[thid] = 1;
-    }
-}
-
-__global__ void min(int* small, int* data, int n) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    for(int j = 0; j < n; j++) {
-        if(i < n) {
-            if(data[j] < data[i] && i != j) {
-                small[i] = 0;
-            }
-        }
-    }
-}
-
-__global__ void finish(int* small, int* data, int* max, int n) {
-    int thid = blockIdx.x * blockDim.x + threadIdx.x;
-    if(thid < n) {
-        if(small[thid] == 1) {
-            *max = data[thid];
-        }
-    }
-}
+#define THREADS 64
 
 __global__ void last_digits(int* mod, int* data, int n) {
     int thid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -44,11 +17,35 @@ __global__ void last_digits(int* mod, int* data, int n) {
     }
 }
 
+__global__ void min_reduction(int * data, int* results, int n) {
+    extern __shared__ int temp[];
+    int thid = blockIdx.x*blockDim.x + threadIdx.x;
+    int lid = threadIdx.x;
+
+    if(thid < n) {
+        temp[lid] = data[thid];
+    } else temp[lid] = 1000;
+    __syncthreads();
+
+    for(int offset = blockDim.x>>1; offset > 0; offset >>= 1) {
+        __syncthreads();
+        if(lid < offset) {
+            if(temp[lid + offset] < temp[lid]) {
+                temp[lid] = temp[lid + offset];
+            }
+        }
+    }
+
+    if(lid == 0) {
+        results[blockIdx.x] = temp[0];
+    }
+}
+
 int main(int argc,char **argv) {
     vector<int> array;
     int i = 0;
 
-    ifstream file( "inp.txt" );
+    ifstream file( "inp2.txt" );
     int number;
     while(file>>number) {
         array.push_back(number); 
@@ -60,9 +57,6 @@ int main(int argc,char **argv) {
     int* data = new int[array.size()];
     int* mod = new int[array.size()];
     int* d_data;
-    int* d_small;
-    int max;
-    int* d_max;
     int* d_mod;
     for(int a = 0; a < array.size(); a++) {
         data[a] = array[a];
@@ -71,8 +65,6 @@ int main(int argc,char **argv) {
     int size = sizeof(int)*array.size();
 
     cudaMalloc((void **) &d_data, size);
-    cudaMalloc((void **) &d_max, sizeof(int));
-    cudaMalloc((void **) &d_small, size);
     cudaMalloc((void **) &d_mod, size);
 
     cudaMemcpy(d_data, data, size, cudaMemcpyHostToDevice);
@@ -81,12 +73,25 @@ int main(int argc,char **argv) {
     if(array.size()%THREADS > 0) {
         sizing++;
     }
-    // launch the kernel
-    setup<<<sizing, THREADS>>>(d_small, (int) array.size());
-    min<<<sizing, THREADS>>>(d_small, d_data, (int) array.size());
-    finish<<<sizing, THREADS>>>(d_small, d_data, d_max, (int) array.size());
-    cudaMemcpy(&max, d_max, sizeof(int), cudaMemcpyDeviceToHost);
 
+    int* inter = new int[array.size()];
+    int* d_inter;
+    int blockSize = sizeof(int)*THREADS;
+    cudaMalloc((void **) &d_inter, size);
+
+    // first reduction
+    min_reduction<<<sizing, THREADS, blockSize>>>(d_data, d_inter, array.size());
+    cudaMemcpy(inter, d_inter, size, cudaMemcpyDeviceToHost);
+
+    // second reduction
+    int* results = new int[array.size()];
+    int* d_results;
+    cudaMalloc((void **) &d_results, size);
+    
+    min_reduction<<<sizing, THREADS, blockSize>>>(d_inter, d_results, sizing);
+    cudaMemcpy(results, d_results, blockSize, cudaMemcpyDeviceToHost);
+
+    // last digits of array
     last_digits<<<sizing, THREADS>>>(d_mod, d_data, array.size());
     cudaMemcpy(mod, d_mod, size, cudaMemcpyDeviceToHost);
 
@@ -101,17 +106,13 @@ int main(int argc,char **argv) {
 
     fp = fopen("q1a.txt", "w");
     if(fp != NULL) {
-        fprintf(fp, "%d", max);
+        fprintf(fp, "%d", results[0]);
         fclose(fp);
     }
 
-
-    printf("\n");
-    printf("%d ", max);
-    printf("\n");
-
     cudaFree(d_data);
-    cudaFree(d_max);
+    cudaFree(d_inter);
+    cudaFree(d_results);
     cudaFree(d_mod);
 
     // force the printf()s to flush
