@@ -8,10 +8,10 @@
 
 using namespace std;
 
-#define THREADS 20
+#define THREADS 64
 
 __global__ void setup(int* data, int* odd, int* count, int n) {
-	int thid = blockIdx.x*THREADS + threadIdx.x;
+	int thid = blockIdx.x*blockDim.x + threadIdx.x;
 	if(thid >= n) {
 		return;
 	}
@@ -22,31 +22,72 @@ __global__ void setup(int* data, int* odd, int* count, int n) {
 	} else odd[thid] = 0;
 }
 
-__global__ void parallelPrefix(int* odd, int* ppref, int n) {
-	int thid = blockIdx.x*THREADS + threadIdx.x;
+__global__ void parallelPrefix(int* odd, int* ppref, int* offset, int n) {
+	extern __shared__ int prefs[];
+	int thid = blockIdx.x*blockDim.x + threadIdx.x;
 	if(thid >= n) {
 		return;
 	}
-	int val = 0;
-	ppref[thid] = odd[thid];
-	printf("%d ", ppref[thid]);
+	prefs[threadIdx.x] = odd[thid];
+	// printf("%d, %d \n", thid, prefs[thid%THREADS]);
+
 	__syncthreads();
 
-	for(int i = 1; i < n; i *= 2) {
-		if(thid >= i) {
-			val = ppref[thid - i];
+	int val = 0;
+	for(int i = 1; i < THREADS; i *= 2) {
+		if(threadIdx.x >= i) {
+			val = prefs[threadIdx.x - i];
 		}
 		__syncthreads();
 
-		if(thid >= i) {
-			ppref[thid] += val;
+		if(threadIdx.x >= i) {
+			prefs[threadIdx.x] += val;
 		}
 		__syncthreads();
 	}
+	ppref[thid] = prefs[threadIdx.x];
+	if(threadIdx.x == THREADS - 1) {
+		offset[blockIdx.x] = ppref[thid];
+	}
+}
+
+__global__ void sum_reduce(int* offset, int n) {
+	extern __shared__ int prefs[];
+	int thid = threadIdx.x;
+
+	printf("\n");
+	prefs[thid] = offset[thid];
+	// printf("%d: %d \n", thid, prefs[thid]);
+	__syncthreads();
+
+	int val = 0;
+	for(int i = 1; i < n; i *= 2) {
+		if(thid >= i) {
+			val = prefs[thid - i];
+		}
+		// printf("%d \n", val);
+		__syncthreads();
+
+		if(thid >= i) {
+			prefs[thid] += val;
+		}
+		__syncthreads();
+	}
+	offset[thid] = prefs[thid];
+	// printf("%d: %d \n", prefs[thid], thid);
+}
+
+
+__global__ void concat(int* offset, int*ppref) {
+	int thid = blockIdx.x*blockDim.x + threadIdx.x;
+	if(blockIdx.x > 0) {
+		ppref[thid] += offset[blockIdx.x - 1];
+	}
+	//need to take care of other blocks, run prefix on blocks
 }
 
 __global__ void finish(int* odd, int* ppref, int* results, int* data, int n) {
-	int thid = blockIdx.x*THREADS + threadIdx.x;
+	int thid = blockIdx.x*blockDim.x + threadIdx.x;
 	if(thid >= n) {
 		return;
 	}
@@ -60,7 +101,7 @@ int main(int argc,char **argv) {
     vector<int> array;
     int i = 0;
 
-    ifstream file( "inp2.txt" );
+    ifstream file( "inp.txt" );
     int number;
     while(file>>number) {
         array.push_back(number); 
@@ -77,6 +118,7 @@ int main(int argc,char **argv) {
     int* d_odd;
     int* d_ppref;
     int* d_count;
+    int* d_offset;
 
     for(int a = 0; a < array.size(); a++) {
         data[a] = array[a];
@@ -98,38 +140,47 @@ int main(int argc,char **argv) {
     if(array.size()%THREADS > 0) {
     	blocks += 1;
     }
+    cudaMalloc((void **) &d_offset, sizeof(int)*blocks);
+    int* offset = new int[blocks];
 
     setup<<<blocks, THREADS>>>(d_data, d_odd, d_count, array.size());
     //get number of odds
     cudaMemcpy(&count, d_count, sizeof(int), cudaMemcpyDeviceToHost);
 
     //do parallel prefix on odd array to find distance from the start
-    parallelPrefix<<<blocks, THREADS>>>(d_odd, d_ppref, array.size());
-    // force the printf()s to flush
-    cudaDeviceSynchronize();
+    parallelPrefix<<<blocks, THREADS, sizeof(int)*THREADS>>>(d_odd, d_ppref, d_offset, array.size());
+    cudaMemcpy(offset, d_offset, sizeof(int)*blocks, cudaMemcpyDeviceToHost); 
+    printf("\n");
+    for(int a = 0; a < blocks; a++) {
+    	printf("%d ", offset[a]);
+    }
+
+    sum_reduce<<<1, blocks, sizeof(int)*blocks>>>(d_offset, blocks);
+    concat<<<blocks, THREADS>>>(d_offset, d_ppref);
 
     cudaMemcpy(ppref, d_ppref, size, cudaMemcpyDeviceToHost); 
+
     printf("\n");
     for(int a = 0; a < array.size(); a++) {
     	printf("(%d:%d), ", ppref[a], data[a]);
     }
 
     //create array, if odd from small, copy into location of array
-    // int* results = new int[count];
-    // int* d_results;
-    // cudaMalloc((void **) &d_results, sizeof(int)*count);
-    // finish<<<blocks, THREADS>>>(d_odd, d_ppref, d_results, d_data, array.size());
-    // cudaMemcpy(results, d_results, sizeof(int)*count, cudaMemcpyDeviceToHost);
-    // printf("\n");
-    // for(int a = 0; a < count; a++) {
-    //     printf("%d ", results[a]);
-    // }
+    int* results = new int[count];
+    int* d_results;
+    cudaMalloc((void **) &d_results, sizeof(int)*count);
+    finish<<<blocks, THREADS>>>(d_odd, d_ppref, d_results, d_data, array.size());
+    cudaMemcpy(results, d_results, sizeof(int)*count, cudaMemcpyDeviceToHost);
+    printf("\n");
+    for(int a = 0; a < count; a++) {
+        printf("%d ", results[a]);
+    }
 
-    // cudaFree(d_data);
-    // cudaFree(d_odd);
+    cudaFree(d_data);
+    cudaFree(d_odd);
     cudaFree(d_ppref);
     cudaFree(d_count);
-    // cudaFree(d_results);
+    cudaFree(d_results);
 
     // force the printf()s to flush
     cudaDeviceSynchronize();
