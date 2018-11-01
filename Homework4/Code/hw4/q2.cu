@@ -61,7 +61,7 @@ int main(int argc,char **argv)
 
     int* d_data;
 	cudaMalloc((void **)&d_data, size);
-    cudaMemCpy(d_data, data, size, cudaMemCpyHostToDevice);
+    cudaMemcpy(d_data, data, size, cudaMemcpyHostToDevice);
 
     // 2A
     int* result1 = (int*)malloc(10*sizeof(int));
@@ -70,31 +70,31 @@ int main(int argc,char **argv)
     }
     int* d_result1;
     cudaMalloc((void **)&d_result1, 10);
-    cudaMemCpy(d_result1, result1, 10, cudaMemCpyHostToDevice);
+    cudaMemcpy(d_result1, result1, 10, cudaMemcpyHostToDevice);
 
     buckets_global<<<num_blocks, THREADS>>>(d_data, d_result1, total);
 
-    cudaMemCpy(result1, d_result1, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(result1, d_result1, size, cudaMemcpyDeviceToHost);
 
     // 2B
     int* result2 = (int*)malloc(10*sizeof(int)*num_blocks);
     for (int i = 0; i < 10; i++) {
-    	result[i] = 0;
+    	result2[i] = 0;
     }
     int* d_result2;
     cudaMalloc((void **)&d_result2, 10);
-    cudaMemCpy(d_result2, result2, 10, cudaMemCpyHostToDevice);
+    cudaMemcpy(d_result2, result2, 10, cudaMemcpyHostToDevice);
 
     buckets_local<<<num_blocks, 1>>>(d_data, d_result2, total);
 
 
-    FILE *file = fopen("q2a.txt", "w");
-    if(file != NULL) {
+    FILE *fp = fopen("q2a.txt", "w");
+    if(fp != NULL) {
         for(int a = 0; a < 9; a++) {
-            fprintf(file, "%d, ", result1[a]);
+            fprintf(fp, "%d, ", result1[a]);
         }
-        fprintf(file, "%d", result1[9]);
-        fclose(file);
+        fprintf(fp, "%d", result1[9]);
+        fclose(fp);
     }
 
     // force the printf()s to flush
