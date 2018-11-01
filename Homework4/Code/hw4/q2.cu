@@ -28,8 +28,8 @@ __global__ void buckets_global(int* data, int* result, int total) {
 
 __global__ void buckets_local(int*data, int* result, int total) {
     extern __shared__ int local[];
-    int global_index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (global_index < total) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < total) {
 		if (data[index] >= 0 && data[index] <= 99) atomicAdd(local, 1);
 		else if (data[index] >= 100 && data[index] <= 199) atomicAdd(local + 1, 1);
 		else if (data[index] >= 200 && data[index] <= 299) atomicAdd(local + 2, 1);
@@ -66,7 +66,7 @@ int main(int argc,char **argv)
     vector<int> array;
     int i = 0;
 
-    ifstream file( "inp2.txt" );
+    ifstream file( "inp.txt" );
     int number;
     while(file>>number) {
         array.push_back(number); 
@@ -122,13 +122,15 @@ int main(int argc,char **argv)
     cudaMalloc((void **)&d_result2, result_size);
     cudaMemcpy(d_result2, result2, result_size, cudaMemcpyHostToDevice);
 
-    buckets_local<<<num_blocks, THREADS, result_size*num_blocks>>>(d_data, d_result_inter, total);
+    buckets_local<<<num_blocks, THREADS, result_size>>>(d_data, d_result_inter, total);
 
-    // cudaMemcpy(result_inter, d_result_inter, result_size*num_blocks, cudaMemcpyDeviceToHost);
+    cudaMemcpy(result_inter, d_result_inter, result_size*num_blocks, cudaMemcpyDeviceToHost);
 
     reduce_buckets_local<<<10, 1>>>(d_result_inter, d_result2, num_blocks);
 
-    cudeMemcpy(result2, d_result2, result_size, result_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(result2, d_result2, result_size, cudaMemcpyDeviceToHost);
+
+    //2C
 
 
     FILE *fp = fopen("q2a.txt", "w");
