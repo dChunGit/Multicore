@@ -38,7 +38,7 @@ int main(int argc,char **argv)
     vector<int> array;
     int i = 0;
 
-    ifstream file( "inp.txt" );
+    ifstream file( "inp2.txt" );
     int number;
     while(file>>number) {
         array.push_back(number); 
@@ -48,7 +48,8 @@ int main(int argc,char **argv)
     }
 
     // structures used by all
-    int size = sizeof(int)*array.size();
+    int data_size = sizeof(int)*array.size();
+    int result_size = sizeof(int)*10;
     int total = array.size();
     int* data = (int*)malloc(size);
     int num_blocks = array.size()/THREADS;
@@ -60,30 +61,30 @@ int main(int argc,char **argv)
     }
 
     int* d_data;
-	cudaMalloc((void **)&d_data, size);
-    cudaMemcpy(d_data, data, size, cudaMemcpyHostToDevice);
+	cudaMalloc((void **)&d_data, data_size);
+    cudaMemcpy(d_data, data, data_size, cudaMemcpyHostToDevice);
 
     // 2A
-    int* result1 = (int*)malloc(10*sizeof(int));
+    int* result1 = (int*)malloc(result_size);
     for (int i = 0; i < 10; i++) {
     	result1[i] = 0;
     }
     int* d_result1;
-    cudaMalloc((void **)&d_result1, 10);
-    cudaMemcpy(d_result1, result1, 10, cudaMemcpyHostToDevice);
+    cudaMalloc((void **)&d_result1, result_size);
+    cudaMemcpy(d_result1, result1, result_size, cudaMemcpyHostToDevice);
 
     buckets_global<<<num_blocks, THREADS>>>(d_data, d_result1, total);
 
-    cudaMemcpy(result1, d_result1, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(result1, d_result1, result_size, cudaMemcpyDeviceToHost);
 
     // 2B
-    int* result2 = (int*)malloc(10*sizeof(int)*num_blocks);
+    int* result2 = (int*)malloc(result_size*num_blocks);
     for (int i = 0; i < 10; i++) {
     	result2[i] = 0;
     }
     int* d_result2;
-    cudaMalloc((void **)&d_result2, 10);
-    cudaMemcpy(d_result2, result2, 10, cudaMemcpyHostToDevice);
+    cudaMalloc((void **)&d_result2, result_size);
+    cudaMemcpy(d_result2, result2, result_size, cudaMemcpyHostToDevice);
 
     buckets_local<<<num_blocks, 1>>>(d_data, d_result2, total);
 
