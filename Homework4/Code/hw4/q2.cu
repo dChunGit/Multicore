@@ -58,6 +58,29 @@ __global__ void reduce_buckets_local(int*data, int*result, int num_blocks) {
 	result[index] = count;
 }
 
+__global__ void parallelPrefix(int* data, int* result, int n) {
+    extern __shared__ int prefs[];
+    int thid = threadIdx.x;
+    if(thid >= n) {
+        return;
+    }
+    prefs[threadIdx.x] = data[thid];
+    __syncthreads();
+
+    int val = 0;
+    for(int i = 1; i < 10; i *= 2) {
+        if(threadIdx.x >= i) {
+            val = prefs[threadIdx.x - i];
+        }
+        __syncthreads();
+
+        if(threadIdx.x >= i) {
+            prefs[threadIdx.x] += val;
+        }
+        __syncthreads();
+    }
+    result[thid] = prefs[threadIdx.x];
+}
 
 int main(int argc,char **argv)
 {
@@ -131,6 +154,11 @@ int main(int argc,char **argv)
     cudaMemcpy(result2, d_result2, result_size, cudaMemcpyDeviceToHost);
 
     //2C
+    int* result3 = new int[10];
+    int* d_result3;
+    cudaMalloc((void **) &d_result3, sizeof(int)*10);
+    parallelPrefix<<<1, 10, sizeof(int)*10>>>(d_result2, d_result3, 10);
+    cudaMemcpy(result3, d_result3, sizeof(int)*10, cudaMemcpyDeviceToHost);
 
 
     FILE *fp = fopen("q2a.txt", "w");
@@ -150,6 +178,15 @@ int main(int argc,char **argv)
         fprintf(fp, "%d", result2[9]);
         fclose(fp);
     }
+
+    fp = fopen("q2c.txt", "w");
+    if(fp != NULL) {
+        for(int a = 0; a < 9; a++) {
+            fprintf(fp, "%d, ", result3[a]);
+        }
+        fprintf(fp, "%d", result3[9]);
+        fclose(fp);
+    }    
 
     // force the printf()s to flush
     cudaDeviceSynchronize();
