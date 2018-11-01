@@ -101,7 +101,7 @@ int main(int argc,char **argv)
     cudaMalloc((void **)&d_result1, result_size);
     cudaMemcpy(d_result1, result1, result_size, cudaMemcpyHostToDevice);
 
-    buckets_global<<<num_blocks, THREADS>>>(d_data, d_result1, total);
+    cudaDeviceSynchronize();
 
     cudaMemcpy(result1, d_result1, result_size, cudaMemcpyDeviceToHost);
 
