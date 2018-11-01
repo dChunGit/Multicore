@@ -64,7 +64,7 @@ int main(int argc,char **argv)
     cudaMemCpy(d_data, data, size, cudaMemCpyHostToDevice);
 
     // 2A
-    int* result1 = (int*)malloc(10);
+    int* result1 = (int*)malloc(10*sizeof(int));
     for (int i = 0; i < 10; i++) {
     	result1[i] = 0;
     }
@@ -74,10 +74,10 @@ int main(int argc,char **argv)
 
     buckets_global<<<num_blocks, THREADS>>>(d_data, d_result1, total);
 
-    cudaMemcpy(results1, d_result1, size, cudaMemcpyDeviceToHost);
+    cudaMemCpy(results1, d_result1, size, cudaMemcpyDeviceToHost);
 
     // 2B
-    int* result2 = (int*)malloc(10);
+    int* result2 = (int*)malloc(10*sizeof(int)*num_blocks);
     for (int i = 0; i < 10; i++) {
     	result[i] = 0;
     }
