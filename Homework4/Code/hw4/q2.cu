@@ -85,7 +85,7 @@ int main(int argc,char **argv)
     cudaMalloc((void **)&d_result2, 10);
     cudaMemCpy(d_result2, result2, 10, cudaMemCpyHostToDevice);
 
-    buckets_local<<<NUM_BLOCKS, 1>>>(d_data, d_result2, total);
+    buckets_local<<<num_blocks, 1>>>(d_data, d_result2, total);
 
 
     FILE *file = fopen("q2a.txt", "w");
