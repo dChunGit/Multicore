@@ -60,26 +60,23 @@ __global__ void reduce_buckets_local(int*data, int*result, int num_blocks) {
 
 __global__ void parallelPrefix(int* data, int* result, int n) {
     extern __shared__ int prefs[];
-    int thid = threadIdx.x;
-    if(thid >= n) {
-        return;
-    }
-    prefs[threadIdx.x] = data[thid];
+    int index = threadIdx.x;
+    prefs[index] = data[index];
     __syncthreads();
 
     int val = 0;
     for(int i = 1; i < 10; i *= 2) {
-        if(threadIdx.x >= i) {
-            val = prefs[threadIdx.x - i];
+        if(index >= i) {
+            val = prefs[index - i];
         }
         __syncthreads();
 
-        if(threadIdx.x >= i) {
-            prefs[threadIdx.x] += val;
+        if(index >= i) {
+            prefs[index] += val;
         }
         __syncthreads();
     }
-    result[thid] = prefs[threadIdx.x];
+    result[index] = prefs[index];
 }
 
 int main(int argc,char **argv)
@@ -89,7 +86,7 @@ int main(int argc,char **argv)
     vector<int> array;
     int i = 0;
 
-    ifstream file( "inp.txt" );
+    ifstream file( "inp3.txt" );
     int number;
     while(file>>number) {
         array.push_back(number); 
@@ -154,11 +151,14 @@ int main(int argc,char **argv)
     cudaMemcpy(result2, d_result2, result_size, cudaMemcpyDeviceToHost);
 
     //2C
-    int* result3 = new int[10];
+    int* result3 = (int*)malloc(result_size);
+    for (int i = 0; i < 10; i++) {
+    	result3[i] = 0;
+    }
     int* d_result3;
-    cudaMalloc((void **) &d_result3, sizeof(int)*10);
-    parallelPrefix<<<1, 10, sizeof(int)*10>>>(d_result2, d_result3, 10);
-    cudaMemcpy(result3, d_result3, sizeof(int)*10, cudaMemcpyDeviceToHost);
+    cudaMalloc((void **) &d_result3, result_size);
+    parallelPrefix<<<1, 10, result_size>>>(d_result2, d_result3, 10);
+    cudaMemcpy(result3, d_result3, result_size, cudaMemcpyDeviceToHost);
 
 
     FILE *fp = fopen("q2a.txt", "w");
@@ -187,6 +187,18 @@ int main(int argc,char **argv)
         fprintf(fp, "%d", result3[9]);
         fclose(fp);
     }    
+
+    free(data);
+    free(result1);
+    free(result2);
+    free(result3);
+    free(result_inter);
+
+    cudaFree(d_data);
+    cudaFree(d_result1);
+    cudaFree(d_result2);
+    cudaFree(d_result3);
+    cudaFree(d_result_inter); 
 
     // force the printf()s to flush
     cudaDeviceSynchronize();
