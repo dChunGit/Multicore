@@ -74,7 +74,7 @@ int main(int argc,char **argv)
 
     buckets_global<<<num_blocks, THREADS>>>(d_data, d_result1, total);
 
-    cudaMemCpy(results1, d_result1, size, cudaMemcpyDeviceToHost);
+    cudaMemCpy(result1, d_result1, size, cudaMemcpyDeviceToHost);
 
     // 2B
     int* result2 = (int*)malloc(10*sizeof(int)*num_blocks);
@@ -91,9 +91,9 @@ int main(int argc,char **argv)
     FILE *file = fopen("q2a.txt", "w");
     if(file != NULL) {
         for(int a = 0; a < 9; a++) {
-            fprintf(fp, "%d, ", result1[a]);
+            fprintf(file, "%d, ", result1[a]);
         }
-        fprintf(fp, "%d", result1[9]);
+        fprintf(file, "%d", result1[9]);
         fclose(file);
     }
 
