@@ -1,23 +1,36 @@
+import com.google.gson.Gson;
 import javafx.util.Pair;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 
 public class AbortLock implements Lock {
-    private HashMap<Object, ArrayList<Pair<Field, Object>>> saveData = new HashMap<>();
+    private ConcurrentHashMap<Object, ArrayList<Pair<Field, Object>>> saveData = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Object, Boolean> saveStatic = new ConcurrentHashMap<>();
 
-    public void lock(Object save) {
-       saveData(save);
+    public void lock(Object save, boolean saveStatics, Object ... others) {
+        saveStatic.put(save, saveStatics);
+        saveData(save);
+        for(Object item : others) {
+           saveData(item);
+        }
     }
 
     public void unlock(Object unlock) {
-        abort(unlock);
+//        abort(unlock);
     }
 
-    public void abort(Object restore) {
+    public void abort(Object restore, Object ... others) {
+        for(Object item : others) {
+            restoreData(item);
+        }
         restoreData(restore);
+        unlock(restore);
     }
 
     /**
@@ -27,7 +40,7 @@ public class AbortLock implements Lock {
      */
     private void saveData(Object save) {
         ArrayList<Class> classes = getAllClasses(save);
-        ArrayList<Field> fields = getAllFields(classes);
+        ArrayList<Field> fields = getAllFields(classes, saveStatic.get(save));
 
         saveData.put(save, addFields(fields, save));
     }
@@ -76,11 +89,12 @@ public class AbortLock implements Lock {
      * @param classes: List of classes to find variables from
      * @return ArrayList of fields found from each class
      */
-    private ArrayList<Field> getAllFields(ArrayList<Class> classes) {
+    private ArrayList<Field> getAllFields(ArrayList<Class> classes, boolean saveStatics) {
         ArrayList<Field> fields = new ArrayList<>();
-
         for(Class classObject : classes) {
-            fields.addAll(Arrays.asList(classObject.getDeclaredFields()));
+            fields.addAll(Arrays.stream(classObject.getDeclaredFields())
+                    .filter(f -> saveStatics || !Modifier.isStatic(f.getModifiers()))
+                    .collect(Collectors.toList()));
         }
 
         return fields;
@@ -98,12 +112,30 @@ public class AbortLock implements Lock {
         for(Field field : fields) {
             try {
                 field.setAccessible(true);
-                fieldData.add(new Pair<>(field, field.get(save)));
+                if(!(field.get(save) instanceof AbortLock)) {
+                    fieldData.add(new Pair<>(field, deepCopy(field.get(save), field.getType())));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         return fieldData;
+    }
+
+    /**
+     * Deep copies object using gson serialization/deserialization
+     * @param object object to deep copy
+     * @param type class type to serialize to and from
+     * @return deep copy of object passed in
+     */
+    private Object deepCopy(Object object, Class<?> type) {
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(gson.toJson(object, type), type);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
