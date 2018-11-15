@@ -67,7 +67,7 @@ public class Option2 extends SuperOption2 implements Runnable {
         fancyObject.first = 1;
         fancyObject.second = "test1";
         fancyObject.third = true;
-//        fancyObject.smallObject.small = false;
+//      fancyObject.smallObject.small = false;
         smallObject.small = false;
         fancyObject.fourth[0] = 1;
         setTestee(1);

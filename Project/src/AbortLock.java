@@ -6,14 +6,16 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-
 
 public class AbortLock implements Lock {
     private ConcurrentHashMap<Object, ArrayList<Pair<Field, Object>>> saveData = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Object, Boolean> saveStatic = new ConcurrentHashMap<>();
+    private ReentrantLock lock = new ReentrantLock();
 
     public void lock(Object save, boolean saveStatics, Object ... others) {
+        lock.lock();
         saveStatic.put(save, saveStatics);
         saveData(save);
         for(Object item : others) {
@@ -22,7 +24,7 @@ public class AbortLock implements Lock {
     }
 
     public void unlock(Object unlock) {
-//        abort(unlock);
+        lock.unlock();
     }
 
     public void abort(Object restore, Object ... others) {
