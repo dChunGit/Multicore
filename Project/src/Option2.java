@@ -4,14 +4,14 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
     private static int counter;
     private static AbortLock lock;
 
-    public static TestObject[] testAbortLock(int numThreads) {
+    public static TestObject[] testAbortLock(int numThreads, int numtoAbort) {
         lock = new AbortLock();
         counter = 0;
         TestObject[] results = new TestObject[numThreads];
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for(int a = 0; a < numThreads; a++) {
-            Future<TestObject> result = executorService.submit(new Option2(a));
+            Future<TestObject> result = executorService.submit(new Option2(a, a<numtoAbort));
             try {
                 results[a] = result.get();
             } catch (Exception e) {
@@ -24,10 +24,12 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
     private int id;
     private int changeMe = 0;
     private FancyObject fancyObject;
+    private boolean abort;
 
-    public Option2(int id) {
+    public Option2(int id, boolean abort) {
         this.id = id;
         fancyObject = new FancyObject();
+        this.abort = abort;
     }
 
     @Override
@@ -47,7 +49,9 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
         fancyObject.testSuper = true;
         setTestee(this.id);
 
-        lock.abort(this);
+        if(abort) {
+            lock.abort(this);
+        } else lock.unlock(this);
 
         testObject = new TestObject(fancyObject, id, changeMe, counter, this);
         return testObject;
