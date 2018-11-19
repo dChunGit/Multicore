@@ -4,6 +4,17 @@ import org.junit.Test;
 public class SimpleTest {
 
     @Test
+    public void testLock() {
+        TestObject[] result = Option2.testAbortLock(1, 0);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 1, new Option2(0, false));
+        test.fancyObject.second = "test0";
+        test.fancyObject.third = true;
+        test.fancyObject.smallObject.small = false;
+        test.fancyObject.testSuper = true;
+        Assert.assertEquals(test, result[0]);
+    }
+
+    @Test
     public void testAbort() {
         TestObject[] result = Option2.testAbortLock(1, 1);
         TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new Option2(0, false));
@@ -27,7 +38,7 @@ public class SimpleTest {
         for(int a = 0; a < result.length; a++) {
             test.id = a;
             test.changeMe = a;
-            test.counter = a;
+            test.counter = a + 1;
             test.fancyObject.first = a;
             test.fancyObject.second = "test" + a;
             test.fancyObject.third = true;
@@ -40,5 +51,27 @@ public class SimpleTest {
         }
     }
 
+    @Test
+    public void testAbortSome() {
+        int numToAbort = 3;
+        TestObject[] result = Option2.testAbortLock(4, numToAbort);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new Option2(0, false));
+        for(int a = 0; a < result.length; a++) {
+            test.id = a;
+            if(a >= numToAbort) {
+                test.changeMe = a;
+                test.counter = a + 1 - numToAbort;
+                test.fancyObject.first = a;
+                test.fancyObject.second = "test" + a;
+                test.fancyObject.third = true;
+                test.fancyObject.smallObject.small = false;
+                test.fancyObject.fourth[0] = a;
+                test.fancyObject.testSuper = true;
+                test.option2.setTestee(a);
+                test.option2.tester = a;
+            }
+            Assert.assertEquals(test, result[a]);
+        }
+    }
 
 }

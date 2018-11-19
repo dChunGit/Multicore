@@ -39,7 +39,7 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
         lock.lock(this, true);
 
         changeMe = this.id;
-        counter = this.id;
+        counter++;
         tester = this.id;
         fancyObject.first = this.id;
         fancyObject.second = "test" + this.id;
