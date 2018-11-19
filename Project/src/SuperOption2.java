@@ -1,5 +1,5 @@
 public class SuperOption2 {
-    int tester = 0;
+    public int tester = 0;
     private int testee = 0;
 
     public int getTestee() {
