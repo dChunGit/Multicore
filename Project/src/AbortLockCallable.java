@@ -1,6 +1,6 @@
 import java.util.concurrent.*;
 
-public class Option2 extends SuperOption2 implements Callable<TestObject> {
+public class AbortLockCallable extends SuperAbortLockCallable implements Callable<TestObject> {
     private static int counter;
     private static AbortLock lock;
 
@@ -11,7 +11,7 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for(int a = 0; a < numThreads; a++) {
-            Future<TestObject> result = executorService.submit(new Option2(a, a<numtoAbort));
+            Future<TestObject> result = executorService.submit(new AbortLockCallable(a, a<numtoAbort));
             try {
                 results[a] = result.get();
             } catch (Exception e) {
@@ -26,7 +26,7 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
     private FancyObject fancyObject;
     private boolean abort;
 
-    public Option2(int id, boolean abort) {
+    public AbortLockCallable(int id, boolean abort) {
         this.id = id;
         fancyObject = new FancyObject();
         this.abort = abort;
@@ -44,7 +44,7 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
         fancyObject.first = this.id;
         fancyObject.second = "test" + this.id;
         fancyObject.third = true;
-        fancyObject.smallObject.small = false;
+        fancyObject.subFancyObject.small = false;
         fancyObject.fourth[0] = this.id;
         fancyObject.testSuper = true;
         setTestee(this.id);
@@ -57,7 +57,7 @@ public class Option2 extends SuperOption2 implements Callable<TestObject> {
         return testObject;
     }
 
-    private static void increment(Option2 item) {
+    private static void increment(AbortLockCallable item) {
         lock.lock(item, false);
         counter = 1;
         lock.abort(item);

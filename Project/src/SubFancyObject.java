@@ -1,4 +1,4 @@
-public class SmallObject {
+public class SubFancyObject {
     boolean small = true;
 
     public String toString() {
@@ -7,8 +7,8 @@ public class SmallObject {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof SmallObject) {
-            SmallObject temp = (SmallObject) obj;
+        if(obj instanceof SubFancyObject) {
+            SubFancyObject temp = (SubFancyObject) obj;
             return temp.small == small;
         }
         return false;

@@ -1,4 +1,4 @@
-public class SuperOption2 {
+public class SuperAbortLockCallable {
     public int tester = 0;
     private int testee = 0;
 
