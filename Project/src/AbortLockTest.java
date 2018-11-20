@@ -8,8 +8,10 @@ public class AbortLockTest {
      */
     @Test
     public void testLock() {
-        TestObject[] result = AbortLockCallable.testAbortLock(1, 0, new ReentrantLockWrapper(), true);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 1, new AbortLockCallable(0, false, true));
+        TestObject[] result = AbortLockCallable.testAbortLock(1, 0,
+                new ReentrantLockWrapper(), true);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 1,
+                new AbortLockCallable(0, false, true));
         test.fancyObject.second = "test0";
         test.fancyObject.third = true;
         test.fancyObject.subFancyObject.small = false;
@@ -22,8 +24,10 @@ public class AbortLockTest {
      */
     @Test
     public void testAbort() {
-        TestObject[] result = AbortLockCallable.testAbortLock(1, 1, new ReentrantLockWrapper(), true);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
+        TestObject[] result = AbortLockCallable.testAbortLock(1, 1,
+                new ReentrantLockWrapper(), true);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0,
+                new AbortLockCallable(0, false, true));
         test.fancyObject.second = "test";
         test.fancyObject.third = false;
         test.fancyObject.subFancyObject.small = true;
@@ -36,8 +40,10 @@ public class AbortLockTest {
      */
     @Test
     public void testAbortAll() {
-        TestObject[] result = AbortLockCallable.testAbortLock(4, 4, new ReentrantLockWrapper(), true);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
+        TestObject[] result = AbortLockCallable.testAbortLock(4, 4,
+                new ReentrantLockWrapper(), true);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0,
+                new AbortLockCallable(0, false, true));
         for(int a = 0; a < result.length; a++) {
             test.id = a;
             Assert.assertEquals(test, result[a]);
@@ -49,8 +55,10 @@ public class AbortLockTest {
      */
     @Test
     public void testAbortNone() {
-        TestObject[] result = AbortLockCallable.testAbortLock(4, 0, new ReentrantLockWrapper(), true);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
+        TestObject[] result = AbortLockCallable.testAbortLock(4, 0,
+                new ReentrantLockWrapper(), true);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0,
+                new AbortLockCallable(0, false, true));
         for(int a = 0; a < result.length; a++) {
             test.id = a;
             test.changeMe = a;
@@ -73,8 +81,10 @@ public class AbortLockTest {
     @Test
     public void testAbortSome() {
         int numToAbort = 3;
-        TestObject[] result = AbortLockCallable.testAbortLock(4, numToAbort, new ReentrantLockWrapper(), true);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
+        TestObject[] result = AbortLockCallable.testAbortLock(4, numToAbort,
+                new ReentrantLockWrapper(), true);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0,
+                new AbortLockCallable(0, false, true));
         for(int a = 0; a < result.length; a++) {
             test.id = a;
             if(a >= numToAbort) {
@@ -98,8 +108,10 @@ public class AbortLockTest {
      */
     @Test
     public void testMultCSAccAbort() {
-        TestObject[] result = AbortLockCallable.testAbortLock(4, 4, new SemaphoreWrapper(2), false);
-        TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, false));
+        TestObject[] result = AbortLockCallable.testAbortLock(4, 4,
+                new SemaphoreWrapper(2), false);
+        TestObject test = new TestObject(new FancyObject(), 0, 0, 0,
+                new AbortLockCallable(0, false, false));
         test.setCounter(false);
         for(int a = 0; a < result.length; a++) {
             test.id = a;
