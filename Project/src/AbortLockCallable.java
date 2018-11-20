@@ -4,14 +4,14 @@ public class AbortLockCallable extends SuperAbortLockCallable implements Callabl
     private static int counter;
     private static AbortLock lock;
 
-    public static TestObject[] testAbortLock(int numThreads, int numtoAbort) {
-        lock = new AbortLock();
+    public static TestObject[] testAbortLock(int numThreads, int numtoAbort, Lock innerLock, boolean saveStatics) {
+        lock = new AbortLock(innerLock);
         counter = 0;
         TestObject[] results = new TestObject[numThreads];
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for(int a = 0; a < numThreads; a++) {
-            Future<TestObject> result = executorService.submit(new AbortLockCallable(a, a<numtoAbort));
+            Future<TestObject> result = executorService.submit(new AbortLockCallable(a, a<numtoAbort, saveStatics));
             try {
                 results[a] = result.get();
             } catch (Exception e) {
@@ -25,18 +25,20 @@ public class AbortLockCallable extends SuperAbortLockCallable implements Callabl
     private int changeMe = 0;
     private FancyObject fancyObject;
     private boolean abort;
+    private boolean saveStatics;
 
-    public AbortLockCallable(int id, boolean abort) {
+    public AbortLockCallable(int id, boolean abort, boolean saveStatics) {
         this.id = id;
         fancyObject = new FancyObject();
         this.abort = abort;
+        this.saveStatics = saveStatics;
     }
 
     @Override
     public TestObject call() {
         TestObject testObject;
 
-        lock.lock(this, true);
+        lock.lock(this, saveStatics);
 
         changeMe = this.id;
         counter++;

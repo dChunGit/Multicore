@@ -6,13 +6,16 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-public class AbortLock implements Lock {
+public class AbortLock implements AbortLockInterface {
     private ConcurrentHashMap<Object, ArrayList<Pair<Field, Object>>> saveData = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Object, Boolean> saveStatic = new ConcurrentHashMap<>();
-    private ReentrantLock lock = new ReentrantLock();
+    private Lock lock;
+
+    public AbortLock(Lock lock) {
+        this.lock = lock;
+    }
 
     public void lock(Object save, boolean saveStatics, Object ... others) {
         lock.lock();
