@@ -97,11 +97,14 @@ public class AbortLockTest {
      * Test using a different lock for correctness
      */
     @Test
-    public void testMultipleCSAbort() {
+    public void testMultCSAccAbort() {
         TestObject[] result = AbortLockCallable.testAbortLock(4, 4, new SemaphoreWrapper(2), false);
         TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, false));
         test.setCounter(false);
-        Assert.assertEquals(test, result[0]);
+        for(int a = 0; a < result.length; a++) {
+            test.id = a;
+            Assert.assertEquals(test, result[a]);
+        }
     }
 
 }
