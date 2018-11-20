@@ -24,6 +24,10 @@ public class AbortLockTest {
     public void testAbort() {
         TestObject[] result = AbortLockCallable.testAbortLock(1, 1, new ReentrantLockWrapper(), true);
         TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
+        test.fancyObject.second = "test";
+        test.fancyObject.third = false;
+        test.fancyObject.subFancyObject.small = true;
+        test.fancyObject.testSuper = false;
         Assert.assertEquals(test, result[0]);
     }
 

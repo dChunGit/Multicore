@@ -13,6 +13,10 @@ public class AbortLock implements AbortLockInterface {
     private ConcurrentHashMap<Object, Boolean> saveStatic = new ConcurrentHashMap<>();
     private Lock lock;
 
+    public AbortLock() {
+        this.lock = new ReentrantLockWrapper();
+    }
+
     public AbortLock(Lock lock) {
         this.lock = lock;
     }
