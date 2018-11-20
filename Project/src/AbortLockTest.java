@@ -3,6 +3,9 @@ import org.junit.Test;
 
 public class AbortLockTest {
 
+    /**
+     * Test the normal lock and unlock functionality
+     */
     @Test
     public void testLock() {
         TestObject[] result = AbortLockCallable.testAbortLock(1, 0, new ReentrantLockWrapper(), true);
@@ -14,13 +17,19 @@ public class AbortLockTest {
         Assert.assertEquals(test, result[0]);
     }
 
+    /**
+     * Test aborting a lock to check restored values
+     */
     @Test
     public void testAbort() {
         TestObject[] result = AbortLockCallable.testAbortLock(1, 1, new ReentrantLockWrapper(), true);
         TestObject test = new TestObject(new FancyObject(), 0, 0, 0, new AbortLockCallable(0, false, true));
         Assert.assertEquals(test, result[0]);
     }
-    
+
+    /**
+     * Test aborting every thread
+     */
     @Test
     public void testAbortAll() {
         TestObject[] result = AbortLockCallable.testAbortLock(4, 4, new ReentrantLockWrapper(), true);
@@ -31,6 +40,9 @@ public class AbortLockTest {
         }
     }
 
+    /**
+     * Test aborting no threads
+     */
     @Test
     public void testAbortNone() {
         TestObject[] result = AbortLockCallable.testAbortLock(4, 0, new ReentrantLockWrapper(), true);
@@ -51,6 +63,9 @@ public class AbortLockTest {
         }
     }
 
+    /**
+     * Test aborting only a subset of the threads and check for execution restoration
+     */
     @Test
     public void testAbortSome() {
         int numToAbort = 3;
@@ -74,6 +89,9 @@ public class AbortLockTest {
         }
     }
 
+    /**
+     * Test using a different lock for correctness
+     */
     @Test
     public void testMultipleCSAbort() {
         TestObject[] result = AbortLockCallable.testAbortLock(4, 4, new SemaphoreWrapper(2), false);
