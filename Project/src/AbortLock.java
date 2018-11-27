@@ -102,6 +102,7 @@ public class AbortLock implements AbortLockInterface {
         ArrayList<Field> fields = new ArrayList<>();
         for(Class classObject : classes) {
             fields.addAll(Arrays.stream(classObject.getDeclaredFields())
+                    .parallel()
                     .filter(f -> saveStatics || !Modifier.isStatic(f.getModifiers()))
                     .collect(Collectors.toList()));
         }
