@@ -67,13 +67,6 @@ public class ParallelAbortLock implements AbortLockInterface {
                     e.printStackTrace();
                 }
             });
-//            for (Field field : saveData.keySet()) {
-//                try {
-//                    field.set(restore, saveData.get(field));
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
         }
     }
 

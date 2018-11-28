@@ -1,5 +1,4 @@
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,7 +11,7 @@ public class AbortLockTest {
 
 
     /**
-     * Test the normal lock and unlock functionality
+     * Test the normal lock and unlock functionality across 10 iterations
      */
     @Test
     public void testLock() {
@@ -30,7 +29,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting a lock to check restored values
+     * Test aborting a lock to check restored values across 10 iterations
      */
     @Test
     public void testAbort() {
@@ -48,7 +47,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test the normal lock and unlock functionality
+     * Test the normal lock and unlock functionality for the parallel Abortlock across 10 iterations
      */
     @Test
     public void testParallelLock() {
@@ -66,7 +65,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting a lock to check restored values
+     * Test aborting a lock to check restored values for the parallel Abortlock across 10 iterations
      */
     @Test
     public void testParallelAbort() {
@@ -151,7 +150,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting every thread
+     * Test aborting every thread for the parallel Abortlock
      */
     @Test
     public void testParallelAbortAll() {
@@ -166,7 +165,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting no threads
+     * Test aborting no threads for the parallel Abortlock
      */
     @Test
     public void testParallelAbortNone() {
@@ -191,7 +190,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting only a subset of the threads and check for execution restoration
+     * Test aborting only a subset of the threads and check for execution restoration for the parallel Abortlock
      */
     @Test
     public void testParallelAbortSome() {
@@ -218,7 +217,7 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting only a subset of the threads and check for execution restoration
+     * Test aborting an increasing number of threads from 0 to 29, taking the average of 10 runs
      */
     @Test
     public void testAbortVariable() {
@@ -257,7 +256,8 @@ public class AbortLockTest {
     }
 
     /**
-     * Test aborting only a subset of the threads and check for execution restoration
+     * Test aborting an increasing number of threads from 0 to 29,
+     * taking the average of 10 runs, for parallel AbortLock
      */
     @Test
     public void testParallelAbortVariable() {
