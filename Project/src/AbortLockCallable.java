@@ -2,10 +2,10 @@ import java.util.concurrent.*;
 
 public class AbortLockCallable extends SuperAbortLockCallable implements Callable<TestObject> {
     private static int counter;
-    private static AbortLock lock;
+    private static AbortLockInterface lock;
 
-    public static TestObject[] testAbortLock(int numThreads, int numtoAbort, Lock innerLock, boolean saveStatics) {
-        lock = new AbortLock(innerLock);
+    public static TestObject[] testAbortLock(int numThreads, int numtoAbort, AbortLockInterface abortLockInterface, boolean saveStatics) {
+        lock = abortLockInterface;
         counter = 0;
         TestObject[] results = new TestObject[numThreads];
 

@@ -1,23 +1,22 @@
 import com.google.gson.Gson;
-import javafx.util.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-public class AbortLock implements AbortLockInterface {
-    private ConcurrentHashMap<Object, ArrayList<Pair<Field, Object>>> saveData = new ConcurrentHashMap<>();
+public class ParallelAbortLock implements AbortLockInterface {
+    private ConcurrentHashMap<Field, Object> saveData = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Object, Boolean> saveStatic = new ConcurrentHashMap<>();
     private Lock lock;
+    private Object objectSaved;
 
-    public AbortLock() {
+    public ParallelAbortLock() {
         this.lock = new ReentrantLockWrapper();
     }
 
-    public AbortLock(Lock lock) {
+    public ParallelAbortLock(Lock lock) {
         this.lock = lock;
     }
 
@@ -25,6 +24,7 @@ public class AbortLock implements AbortLockInterface {
         lock.lock();
         saveStatic.put(save, saveStatics);
         saveData(save);
+        objectSaved = save;
         for(Object item : others) {
            saveData(item);
         }
@@ -49,9 +49,8 @@ public class AbortLock implements AbortLockInterface {
      */
     private void saveData(Object save) {
         ArrayList<Class> classes = getAllClasses(save);
-        ArrayList<Field> fields = getAllFields(classes, saveStatic.get(save));
-
-        saveData.put(save, addFields(fields, save));
+//        ArrayList<Field> fields = getAllFields(classes, saveStatic.get(save));
+        saveAllFields(classes, save, saveStatic.get(save));
     }
 
     /**
@@ -59,17 +58,22 @@ public class AbortLock implements AbortLockInterface {
      * @param restore: Object to restore values to
      */
     private void restoreData(Object restore) {
-        if(saveData.containsKey(restore)) {
-            ArrayList<Pair<Field, Object>> fieldData = saveData.get(restore);
-
-            for (Pair data : fieldData) {
-                Field field = (Field) data.getKey();
+        if(objectSaved == restore) {
+            saveData.entrySet().parallelStream().forEach(entry -> {
                 try {
-                    field.set(restore, data.getValue());
+                    Field field = entry.getKey();
+                    field.set(restore, entry.getValue());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+            });
+//            for (Field field : saveData.keySet()) {
+//                try {
+//                    field.set(restore, saveData.get(field));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 
@@ -98,39 +102,27 @@ public class AbortLock implements AbortLockInterface {
      * @param classes: List of classes to find variables from
      * @return ArrayList of fields found from each class
      */
-    private ArrayList<Field> getAllFields(ArrayList<Class> classes, boolean saveStatics) {
-        ArrayList<Field> fields = new ArrayList<>();
-        for(Class classObject : classes) {
-            fields.addAll(Arrays.stream(classObject.getDeclaredFields())
-                    .parallel()
+    private void saveAllFields(ArrayList<Class> classes, Object save, boolean saveStatics) {
+        classes.parallelStream().forEach(classObject ->
+            Arrays.stream(classObject.getDeclaredFields())
                     .filter(f -> saveStatics || !Modifier.isStatic(f.getModifiers()))
-                    .collect(Collectors.toList()));
-        }
-
-        return fields;
+                    .forEach(field -> addFields(field, save)));
     }
 
     /**
      * Adds all fields from the object passed in to a list of pairs mapping each Field to its value in the object
-     * @param fields: List of all fields to save
+     * @param field: List of all fields to save
      * @param save: Object to extract field values from
-     * @return List of Field, variable value pairs
      */
-    private ArrayList<Pair<Field, Object>> addFields(ArrayList<Field> fields, Object save) {
-        ArrayList<Pair<Field, Object>> fieldData = new ArrayList<>();
-
-        for(Field field : fields) {
-            try {
-                field.setAccessible(true);
-                if(!(field.get(save) instanceof AbortLock) && !(field.getType().isInterface())) {
-                    fieldData.add(new Pair<>(field, deepCopy(field.get(save), field.getType())));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void addFields(Field field, Object save) {
+        try {
+            field.setAccessible(true);
+            if(!(field.get(save) instanceof ParallelAbortLock) && !(field.getType().isInterface())) {
+                saveData.put(field, deepCopy(field.get(save), field.getType()));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return fieldData;
     }
 
     /**
